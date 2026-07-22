@@ -1,0 +1,69 @@
+<!-- pages/memory/index.wxml -->
+<view class="memory-page">
+  <!-- 时间线 -->
+  <view class="timeline" wx:if="{{groups.length > 0}}">
+    <view class="timeline-group" wx:for="{{groups}}" wx:for-item="group" wx:key="month">
+      <!-- 月份标题 -->
+      <view class="month-header">
+        <view class="month-dot"></view>
+        <text class="month-text">{{group.month}}</text>
+      </view>
+
+      <!-- 月份下的记录 -->
+      <view class="month-items">
+        <view
+          class="memory-item"
+          wx:for="{{group.items}}"
+          wx:for-item="item"
+          wx:key="_id"
+          data-id="{{item._id}}"
+          bindtap="handleViewDetail"
+        >
+          <!-- 缩略图 -->
+          <view class="memory-thumb">
+            <image
+              wx:if="{{item.thumbUrl}}"
+              class="thumb-img"
+              src="{{item.thumbUrl}}"
+              mode="aspectFill"
+              lazy-load
+            />
+            <view wx:else class="thumb-placeholder">
+              <text>{{item.wishCategory === 'food' ? '🍜' : item.wishCategory === 'travel' ? '✈️' : item.wishCategory === 'sport' ? '⚽' : item.wishCategory === 'movie' ? '🎬' : item.wishCategory === 'home' ? '🏠' : '💝'}}</text>
+            </view>
+          </view>
+
+          <!-- 内容 -->
+          <view class="memory-content">
+            <text class="memory-title">{{item.wishTitle || '愿望打卡'}}</text>
+            <text class="memory-note" wx:if="{{item.note}}">{{item.note}}</text>
+            <text class="memory-date">{{item.dateStr}}</text>
+          </view>
+
+          <text class="memory-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}" bindtap="handleLoadMore">
+      <text>{{loadingMore ? '加载中...' : '加载更多'}}</text>
+    </view>
+    <view class="no-more" wx:else>
+      <text>没有更多了</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <empty-state
+    wx:if="{{!loading && groups.length === 0}}"
+    icon="📖"
+    text="还没有回忆"
+    subText="完成愿望打卡后，这里会记录你们的美好时光"
+  />
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

@@ -1,0 +1,77 @@
+<!-- pages/profile/index.wxml -->
+<view class="profile-page" wx:if="{{coupleInfo}}">
+  <!-- 情侣信息卡 -->
+  <view class="couple-card">
+    <view class="avatar-pair">
+      <view class="avatar-item">
+        <image
+          wx:if="{{userInfo.avatarUrl}}"
+          class="avatar-img"
+          src="{{userInfo.avatarUrl}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-placeholder">
+          <text>我</text>
+        </view>
+        <text class="avatar-name">{{userInfo.nickName || '我'}}</text>
+      </view>
+      <view class="heart-connector">
+        <text class="heart-icon">❤️</text>
+      </view>
+      <view class="avatar-item">
+        <image
+          wx:if="{{partnerInfo.avatarUrl}}"
+          class="avatar-img"
+          src="{{partnerInfo.avatarUrl}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-placeholder">
+          <text>Ta</text>
+        </view>
+        <text class="avatar-name">{{partnerInfo.nickName || 'Ta'}}</text>
+      </view>
+    </view>
+    <view class="anniversary">
+      <text class="anni-days">{{anniversaryDays}}</text>
+      <text class="anni-label">天</text>
+    </view>
+    <text class="anni-text">已在一起</text>
+  </view>
+
+  <!-- 数据统计卡 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-num">{{stats.wishTotal}}</text>
+      <text class="stat-label">愿望</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.wishCompleted}}</text>
+      <text class="stat-label">已完成</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.checkInTotal}}</text>
+      <text class="stat-label">打卡</text>
+    </view>
+  </view>
+
+  <!-- 入口列表 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="handleGoMemory">
+      <text class="menu-icon">📖</text>
+      <text class="menu-text">回忆录</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="handleGoSettings">
+      <text class="menu-icon">⚙️</text>
+      <text class="menu-text">设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

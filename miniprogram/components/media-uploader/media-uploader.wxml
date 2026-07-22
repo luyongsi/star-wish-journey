@@ -1,0 +1,29 @@
+<!-- components/media-uploader/media-uploader.wxml -->
+<view class="media-uploader">
+  <view class="media-grid">
+    <!-- 已选媒体 -->
+    <view class="media-item" wx:for="{{localMedia}}" wx:key="index">
+      <image
+        class="media-thumb"
+        src="{{item.thumbTempFilePath || item.thumbUrl || item.tempFilePath || item.url}}"
+        mode="aspectFill"
+        data-index="{{index}}"
+        bindtap="handlePreview"
+      />
+      <!-- 视频标识 -->
+      <view class="video-badge" wx:if="{{item.type === 'video'}}">
+        <text class="video-icon">▶</text>
+      </view>
+      <!-- 删除按钮 -->
+      <view class="delete-btn" data-index="{{index}}" catchtap="handleDelete">
+        <text class="delete-icon">×</text>
+      </view>
+    </view>
+
+    <!-- 添加按钮 -->
+    <view class="add-btn" wx:if="{{localMedia.length < maxCount}}" bindtap="handleChoose">
+      <text class="add-icon">+</text>
+      <text class="add-text">{{localMedia.length}}/{{maxCount}}</text>
+    </view>
+  </view>
+</view>

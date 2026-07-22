@@ -1,0 +1,179 @@
+/* pages/checkin/index.wxss */
+.checkin-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 120rpx;
+}
+
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2D3436;
+  margin-right: 12rpx;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #FFFFFF;
+  background: #FF6B9D;
+  padding: 2rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.ongoing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ongoing-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.ongoing-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.ongoing-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+}
+
+.ongoing-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ongoing-btn {
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
+  flex-shrink: 0;
+}
+
+.empty-inline {
+  text-align: center;
+  padding: 40rpx;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}
+
+.completed-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  text-align: center;
+  padding: 60rpx;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}
+
+/* 底部面板 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bottom-panel {
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.panel-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #2D3436;
+}
+
+.panel-close {
+  font-size: 48rpx;
+  color: #B2BEC3;
+  padding: 0 8rpx;
+}
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-wish-title {
+  background: #FFF5F8;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.panel-wish-title text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #FF6B9D;
+}
+
+.panel-label {
+  font-size: 28rpx;
+  color: #636E72;
+  margin-bottom: 16rpx;
+  margin-top: 16rpx;
+  display: block;
+}
+
+.panel-textarea {
+  width: 100%;
+  height: 160rpx;
+  background: #F5F5F5;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  margin-bottom: 32rpx;
+  margin-top: 8rpx;
+}

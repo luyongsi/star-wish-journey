@@ -1,0 +1,125 @@
+/* components/wish-card/wish-card.wxss */
+.wish-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+.wish-card-inner {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.card-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  background: #FFF5F8;
+}
+
+.status-pending-icon { background: rgba(116, 185, 255, 0.12); }
+.status-ongoing-icon { background: rgba(253, 203, 110, 0.15); }
+.status-completed-icon { background: rgba(178, 190, 195, 0.12); }
+
+.icon-emoji {
+  font-size: 44rpx;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.status-pending { color: #74B9FF; background: rgba(116, 185, 255, 0.1); }
+.status-ongoing { color: #E17055; background: rgba(253, 203, 110, 0.15); }
+.status-completed { color: #B2BEC3; background: rgba(178, 190, 195, 0.1); }
+
+.card-desc {
+  font-size: 24rpx;
+  color: #636E72;
+  margin-top: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+
+.card-time {
+  font-size: 22rpx;
+  color: #B2BEC3;
+}
+
+.card-favorite {
+  font-size: 22rpx;
+}
+
+/* 左滑操作 */
+.swipe-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.swipe-btn {
+  width: 140rpx;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #FFFFFF;
+}
+
+.edit-btn {
+  background: #74B9FF;
+}
+
+.delete-btn {
+  background: #E84393;
+  border-top-right-radius: 24rpx;
+  border-bottom-right-radius: 24rpx;
+}

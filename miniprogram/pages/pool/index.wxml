@@ -1,0 +1,133 @@
+<!-- pages/pool/index.wxml -->
+<view class="pool-page">
+  <!-- 标题栏 -->
+  <view class="pool-header">
+    <view class="header-title">
+      <text class="title-text">我们的愿望池</text>
+    </view>
+    <view class="header-stats">
+      <text class="stat-text">共 {{stats.total}} 个 · 已完成 {{stats.completed}} 个</text>
+    </view>
+    <view class="add-btn" bindtap="handleShowAdd">
+      <text class="add-icon">+</text>
+    </view>
+  </view>
+
+  <!-- 分类筛选 -->
+  <view class="filter-section">
+    <category-tag
+      mode="filter"
+      selected="{{selectedCategory}}"
+      bind:select="handleCategorySelect"
+    />
+  </view>
+
+  <!-- 愿望列表 -->
+  <view class="wish-list" wx:if="{{wishes.length > 0}}">
+    <wish-card
+      wx:for="{{wishes}}"
+      wx:key="_id"
+      wish="{{item}}"
+      bind:tap="handleWishTap"
+      bind:edit="handleWishEdit"
+      bind:delete="handleWishDelete"
+    />
+  </view>
+
+  <!-- 空状态 -->
+  <empty-state
+    wx:elif="{{!loading}}"
+    icon="🌠"
+    text="愿望池还是空的"
+    subText="点击右上角 + 添加你们的第一个心愿吧"
+    actionText="添加愿望"
+    bind:action="handleShowAdd"
+  />
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>
+
+<!-- 新增愿望面板 -->
+<view class="overlay" wx:if="{{showAddPanel}}" bindtap="handleCloseAdd">
+  <view class="bottom-panel" catchtap="handleStopPropagation">
+    <view class="panel-header">
+      <text class="panel-title">添加愿望</text>
+      <text class="panel-close" bindtap="handleCloseAdd">×</text>
+    </view>
+    <view class="panel-body">
+      <input
+        class="panel-input"
+        placeholder="愿望标题（1-30字）"
+        maxlength="30"
+        value="{{newWish.title}}"
+        bindinput="handleTitleInput"
+      />
+      <view class="category-select">
+        <view
+          class="cat-item {{newWish.category === item.key ? 'cat-active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="handleCategoryChange"
+        >
+          <text class="cat-icon">{{item.icon}}</text>
+          <text class="cat-label">{{item.label}}</text>
+        </view>
+      </view>
+      <textarea
+        class="panel-textarea"
+        placeholder="描述（可选）"
+        maxlength="200"
+        value="{{newWish.description}}"
+        bindinput="handleDescInput"
+      />
+      <view class="btn-primary" bindtap="handleSubmitAdd">
+        <text>添加愿望</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 编辑愿望面板 -->
+<view class="overlay" wx:if="{{showEditPanel}}" bindtap="handleCloseEdit">
+  <view class="bottom-panel" catchtap="handleStopPropagation">
+    <view class="panel-header">
+      <text class="panel-title">编辑愿望</text>
+      <text class="panel-close" bindtap="handleCloseEdit">×</text>
+    </view>
+    <view class="panel-body">
+      <input
+        class="panel-input"
+        placeholder="愿望标题（1-30字）"
+        maxlength="30"
+        value="{{newWish.title}}"
+        bindinput="handleTitleInput"
+      />
+      <view class="category-select">
+        <view
+          class="cat-item {{newWish.category === item.key ? 'cat-active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="handleCategoryChange"
+        >
+          <text class="cat-icon">{{item.icon}}</text>
+          <text class="cat-label">{{item.label}}</text>
+        </view>
+      </view>
+      <textarea
+        class="panel-textarea"
+        placeholder="描述（可选）"
+        maxlength="200"
+        value="{{newWish.description}}"
+        bindinput="handleDescInput"
+      />
+      <view class="btn-primary" bindtap="handleSubmitEdit">
+        <text>保存修改</text>
+      </view>
+    </view>
+  </view>
+</view>

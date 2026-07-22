@@ -1,0 +1,28 @@
+<!-- components/draw-animation/draw-animation.wxml -->
+<view class="draw-animation-container">
+  <view class="draw-card {{animating ? 'animating' : 'settled'}}" wx:if="{{displayWish}}">
+    <view class="draw-card-icon">
+      <text class="draw-emoji">
+        {{displayWish.category === 'food' ? '🍜' :
+          displayWish.category === 'travel' ? '✈️' :
+          displayWish.category === 'sport' ? '⚽' :
+          displayWish.category === 'movie' ? '🎬' :
+          displayWish.category === 'home' ? '🏠' : '💝'}}
+      </text>
+    </view>
+    <view class="draw-card-title">{{displayWish.title}}</view>
+    <view class="draw-card-desc" wx:if="{{displayWish.description}}">{{displayWish.description}}</view>
+  </view>
+
+  <view class="draw-empty" wx:else>
+    <text class="draw-empty-icon">🎁</text>
+    <text class="draw-empty-text">点击下方按钮抽取愿望</text>
+  </view>
+
+  <!-- 动画装饰 -->
+  <view class="sparkles" wx:if="{{animating}}">
+    <text class="sparkle s1">✨</text>
+    <text class="sparkle s2">💫</text>
+    <text class="sparkle s3">⭐</text>
+  </view>
+</view>

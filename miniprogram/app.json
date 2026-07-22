@@ -1,0 +1,57 @@
+{
+  "pages": [
+    "pages/pool/index",
+    "pages/draw/index",
+    "pages/checkin/index",
+    "pages/profile/index",
+    "pages/pair/bind",
+    "pages/wish/detail",
+    "pages/checkin/detail",
+    "pages/profile/settings",
+    "pages/memory/index",
+    "pages/memory/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FF6B9D",
+    "navigationBarTitleText": "心愿拾光",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FFF5F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF6B9D",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/pool/index",
+        "text": "愿望池",
+        "iconPath": "assets/tab/pool.png",
+        "selectedIconPath": "assets/tab/pool-active.png"
+      },
+      {
+        "pagePath": "pages/draw/index",
+        "text": "抽取",
+        "iconPath": "assets/tab/draw.png",
+        "selectedIconPath": "assets/tab/draw-active.png"
+      },
+      {
+        "pagePath": "pages/checkin/index",
+        "text": "打卡",
+        "iconPath": "assets/tab/checkin.png",
+        "selectedIconPath": "assets/tab/checkin-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/tab/profile.png",
+        "selectedIconPath": "assets/tab/profile-active.png"
+      }
+    ]
+  },
+  "usingComponents": {},
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

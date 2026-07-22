@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "draw-animation": "/components/draw-animation/draw-animation",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

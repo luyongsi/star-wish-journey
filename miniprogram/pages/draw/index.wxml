@@ -1,0 +1,69 @@
+<!-- pages/draw/index.wxml -->
+<view class="draw-page">
+  <!-- 标题 -->
+  <view class="draw-header">
+    <text class="draw-title">不知道做什么？</text>
+    <text class="draw-subtitle">抽一个吧！</text>
+  </view>
+
+  <!-- 动画区 -->
+  <view class="draw-animation-area">
+    <draw-animation
+      wishes="{{pendingWishes}}"
+      isRunning="{{isAnimating}}"
+      result="{{isAnimating ? null : drawnWish}}"
+      bind:done="handleAnimationDone"
+    />
+  </view>
+
+  <!-- 剩余数量 -->
+  <view class="draw-count">
+    <text>还有 {{pendingCount}} 个愿望待抽取</text>
+  </view>
+
+  <!-- 抽取按钮 -->
+  <view class="draw-action" wx:if="{{pendingCount > 0 && !showResult}}">
+    <view
+      class="btn-primary draw-btn {{isDrawing ? 'btn-disabled' : ''}}"
+      bindtap="handleDraw"
+    >
+      <text>🎯 开始抽取</text>
+    </view>
+  </view>
+
+  <!-- 空池提示 -->
+  <view class="draw-empty" wx:if="{{pendingCount === 0 && !loading}}">
+    <empty-state
+      icon="📭"
+      text="愿望池空了"
+      subText="快去愿望池添加更多心愿吧"
+    />
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>
+
+<!-- 抽中弹窗 -->
+<view class="overlay" wx:if="{{showResult}}" bindtap="handleCloseResult">
+  <view class="result-modal" catchtap="handleStopPropagation">
+    <view class="result-header">
+      <text class="result-celebrate">🎉</text>
+      <text class="result-title">抽中了！</text>
+    </view>
+    <view class="result-wish">
+      <text class="result-wish-title">{{drawnWish.title}}</text>
+      <text class="result-wish-desc" wx:if="{{drawnWish.description}}">{{drawnWish.description}}</text>
+    </view>
+    <view class="result-actions">
+      <view class="btn-secondary" bindtap="handleReturn">
+        <text>↩ 放回</text>
+      </view>
+      <view class="btn-primary" bindtap="handleStart">
+        <text>✅ 去做</text>
+      </view>
+    </view>
+  </view>
+</view>

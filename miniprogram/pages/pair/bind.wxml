@@ -1,0 +1,77 @@
+<!-- pages/pair/bind.wxml -->
+<view class="pair-page">
+  <!-- Logo 区域 -->
+  <view class="logo-section">
+    <view class="logo-circle">
+      <text class="logo-emoji">💝</text>
+    </view>
+    <text class="app-name">心愿拾光</text>
+    <text class="app-slogan">记录你们每一个甜蜜心愿</text>
+  </view>
+
+  <!-- 初始模式 -->
+  <view class="action-section" wx:if="{{mode === 'init'}}">
+    <view class="btn-primary {{loading ? 'btn-disabled' : ''}}" bindtap="handleCreatePair">
+      <text>{{loading ? '创建中...' : '发起贴贴'}}</text>
+    </view>
+    <view class="divider-text">
+      <view class="line"></view>
+      <text>或</text>
+      <view class="line"></view>
+    </view>
+    <view class="btn-secondary" bindtap="handleShowJoin">
+      <text>输入贴贴码加入</text>
+    </view>
+  </view>
+
+  <!-- 已创建贴贴码 — 等待对方加入 -->
+  <view class="action-section" wx:if="{{mode === 'created'}}">
+    <view class="code-card">
+      <text class="code-label">你的贴贴码</text>
+      <view class="code-display" bindtap="handleCopyCode">
+        <text class="code-number">{{pairCode}}</text>
+      </view>
+      <text class="code-hint">将贴贴码分享给Ta，输入后即可贴贴</text>
+    </view>
+
+    <!-- 等待状态指示器 -->
+    <view class="waiting-section">
+      <view class="waiting-dots">
+        <view class="dot dot1"></view>
+        <view class="dot dot2"></view>
+        <view class="dot dot3"></view>
+      </view>
+      <text class="waiting-text">{{waitingText}}</text>
+    </view>
+
+    <!-- 手动刷新按钮 -->
+    <view class="btn-secondary mt-md" bindtap="handleCheckStatus">
+      <text>刷新配对状态</text>
+    </view>
+
+    <view class="btn-text mt-md" bindtap="handleBack">
+      <text>返回</text>
+    </view>
+  </view>
+
+  <!-- 加入贴贴 -->
+  <view class="action-section" wx:if="{{mode === 'join'}}">
+    <view class="input-card">
+      <text class="input-label">输入贴贴码</text>
+      <input
+        class="code-input"
+        type="number"
+        maxlength="6"
+        placeholder="6位数字贴贴码"
+        value="{{inputCode}}"
+        bindinput="handleInputCode"
+      />
+    </view>
+    <view class="btn-primary mt-lg {{loading ? 'btn-disabled' : ''}}" bindtap="handleJoinPair">
+      <text>{{loading ? '加入中...' : '加入贴贴'}}</text>
+    </view>
+    <view class="btn-secondary mt-md" bindtap="handleBack">
+      <text>返回</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,41 @@
+<!-- components/wish-card/wish-card.wxml -->
+<view class="wish-card-wrapper">
+  <view
+    class="wish-card-inner"
+    style="transform: translateX({{swipeOffset}}rpx); transition: transform 0.2s ease;"
+    bindtouchstart="handleTouchStart"
+    bindtouchend="handleTouchEnd"
+    bindtap="handleTap"
+  >
+
+    <!-- 分类图标 -->
+    <view class="card-icon {{statusClass}}-icon">
+      <text class="icon-emoji">{{icon}}</text>
+    </view>
+
+    <!-- 主体内容 -->
+    <view class="card-body">
+      <view class="card-header">
+        <text class="card-title">{{wish.title}}</text>
+        <view class="status-badge {{statusClass}}">
+          <text>{{statusLabel}}</text>
+        </view>
+      </view>
+      <view class="card-desc" wx:if="{{shortDesc}}">{{shortDesc}}</view>
+      <view class="card-footer">
+        <text class="card-time">{{relativeTime}}</text>
+        <text class="card-favorite" wx:if="{{wish.isFavorite}}">⭐</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 左滑操作按钮 -->
+  <view class="swipe-actions" wx:if="{{showActions}}">
+    <view class="swipe-btn edit-btn" catchtap="handleEdit">
+      <text>编辑</text>
+    </view>
+    <view class="swipe-btn delete-btn" catchtap="handleDelete">
+      <text>删除</text>
+    </view>
+  </view>
+</view>

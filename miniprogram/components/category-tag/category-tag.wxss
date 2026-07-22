@@ -1,0 +1,50 @@
+/* components/category-tag/category-tag.wxss */
+.category-tag-list {
+  width: 100%;
+}
+
+.tag-scroll {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.tag-scroll-inner {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 0 8rpx;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFE0EC;
+  flex-shrink: 0;
+}
+
+.tag-active {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  border-color: #FF6B9D;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.3);
+}
+
+.tag-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.tag-active .tag-icon {
+  filter: brightness(1.1);
+}
+
+.tag-label {
+  font-size: 26rpx;
+  color: #636E72;
+}
+
+.tag-active .tag-label {
+  color: #FFFFFF;
+  font-weight: 600;
+}

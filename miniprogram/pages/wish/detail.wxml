@@ -1,0 +1,105 @@
+<!-- pages/wish/detail.wxml -->
+<view class="detail-page" wx:if="{{wish}}">
+  <!-- 愿望头部 -->
+  <view class="detail-header">
+    <view class="detail-icon {{statusClass}}-bg">
+      <text class="icon-emoji">{{icon}}</text>
+    </view>
+    <view class="detail-info">
+      <text class="detail-title">{{wish.title}}</text>
+      <view class="detail-meta">
+        <view class="status-badge {{statusClass}}">
+          <text>{{statusLabel}}</text>
+        </view>
+        <text class="detail-time">{{relativeTime}}</text>
+      </view>
+    </view>
+    <view class="favorite-btn" bindtap="handleToggleFavorite">
+      <text class="favorite-icon {{wish.isFavorite ? 'active' : ''}}">⭐</text>
+    </view>
+  </view>
+
+  <!-- 描述 -->
+  <view class="detail-section" wx:if="{{wish.description && !isEditing}}">
+    <text class="section-label">描述</text>
+    <view class="section-content">
+      <text>{{wish.description}}</text>
+    </view>
+  </view>
+
+  <!-- 完成信息 -->
+  <view class="detail-section" wx:if="{{wish.status === 'completed'}}">
+    <text class="section-label">完成时间</text>
+    <view class="section-content">
+      <text>🎉 {{completedDate}} 完成</text>
+    </view>
+    <!-- 打卡入口 -->
+    <view class="checkin-entry" wx:if="{{checkIn}}" bindtap="handleViewCheckIn">
+      <text class="checkin-entry-icon">📸</text>
+      <text class="checkin-entry-text">查看打卡记录</text>
+      <text class="checkin-entry-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="detail-actions" wx:if="{{!isEditing}}">
+    <view class="btn-secondary" bindtap="handleStartEdit">
+      <text>✏️ 编辑</text>
+    </view>
+    <view class="btn-danger" bindtap="handleDelete">
+      <text>🗑 删除</text>
+    </view>
+  </view>
+
+  <!-- 编辑模式 -->
+  <view class="edit-form" wx:if="{{isEditing}}">
+    <view class="form-item">
+      <text class="form-label">标题</text>
+      <input
+        class="form-input"
+        placeholder="愿望标题（1-30字）"
+        maxlength="30"
+        value="{{editForm.title}}"
+        bindinput="handleTitleInput"
+      />
+    </view>
+    <view class="form-item">
+      <text class="form-label">分类</text>
+      <view class="category-select">
+        <view
+          class="cat-item {{editForm.category === item.key ? 'cat-active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="handleCategoryChange"
+        >
+          <text class="cat-icon">{{item.icon}}</text>
+          <text class="cat-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="form-item">
+      <text class="form-label">描述</text>
+      <textarea
+        class="form-textarea"
+        placeholder="描述（可选）"
+        maxlength="200"
+        value="{{editForm.description}}"
+        bindinput="handleDescInput"
+      />
+    </view>
+    <view class="edit-actions">
+      <view class="btn-secondary" bindtap="handleCancelEdit">
+        <text>取消</text>
+      </view>
+      <view class="btn-primary" bindtap="handleSaveEdit">
+        <text>保存</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

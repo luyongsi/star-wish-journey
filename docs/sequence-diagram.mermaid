@@ -1,0 +1,143 @@
+%% 心愿拾光 - 时序图（四大核心流程）
+%% 详见 docs/ARCHITECTURE.md 第 4 节
+
+%% ===== 4.1 情侣贴贴流程 =====
+sequenceDiagram
+    autonumber
+    participant A as 用户A（发起方）
+    participant PA as Page: pair/bind
+    participant SA as PairService
+    participant CF as 云函数 pair
+    participant DB as 云数据库 couples
+    participant B as 用户B（加入方）
+    participant PB as Page: pair/bind
+
+    A->>PA: 点击「发起贴贴」
+    PA->>SA: createPair()
+    SA->>CF: callFunction({action:'create'})
+    CF->>DB: 查重 pairCode 生成（重试≤5）
+    DB-->>CF: 确认唯一
+    CF->>DB: insert couple{status:'pending',userA,pairCode}
+    DB-->>CF: _id
+    CF->>DB: update user.coupleId
+    CF-->>SA: {coupleId,pairCode}
+    SA-->>PA: 返回贴贴码
+    PA->>A: 展示贴贴码+小程序码，分享给B
+
+    B->>PB: 输入贴贴码 / 扫码进入
+    PB->>SA: joinPair(pairCode)
+    SA->>CF: callFunction({action:'join',pairCode})
+    CF->>DB: 查 couple where pairCode,status=='pending'
+    DB-->>CF: couple 文档
+    CF->>DB: 事务更新 status:'active', userB, anniversary, 清空 pairCode
+    DB-->>CF: 成功（并发安全：仅首个成功）
+    CF->>DB: update userB.coupleId
+    CF-->>SA: {coupleId,partner}
+    SA-->>PB: 绑定成功
+    PB->>B: 跳转首页（pool）
+    Note over A,B: 双方通过 watch / 重新登录感知 active 态
+
+%% ===== 4.2 愿望创建流程 =====
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant P as Page: pool/index
+    participant SW as WishService
+    participant CF as 云函数 wish
+    participant DB as 云数据库 wishes
+    participant RT as 实时监听 watch
+    participant Partner as 伴侣端
+
+    U->>P: 点击 [+录入]，填标题/分类
+    P->>P: validator 校验标题（≤30字）
+    P->>SW: createWish({title,category,description})
+    SW->>CF: callFunction({action:'create',...})
+    CF->>CF: 校验 openid 属于 active couple
+    CF->>DB: insert wish{status:'pending',createdBy,members:[A,B]}
+    DB-->>CF: wish 文档
+    CF-->>SW: {wish}
+    SW-->>P: 成功
+    P->>U: 关闭面板，列表前置新愿望
+
+    Partner->>RT: watch wishes where coupleId
+    RT->>Partner: 推送 add 事件
+    Partner->>Partner: 列表自动追加新愿望（实时同步）
+
+%% ===== 4.3 随机抽取流程 =====
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant P as Page: draw/index
+    participant Anim as draw-animation 组件
+    participant SW as WishService
+    participant CF as 云函数 wish(draw)
+    participant DB as 云数据库 wishes
+
+    U->>P: 点击「开始抽取」
+    P->>Anim: 启动滚动动画（~2s 视觉）
+    P->>SW: drawWish()
+    SW->>CF: callFunction({action:'draw'})
+    CF->>DB: 查 coupleId 下 status=='pending' 愿望
+    DB-->>CF: 候选列表
+    alt 池为空
+        CF-->>SW: {wish:null}
+        SW-->>P: 空池
+        P->>U: 提示「愿望池空空如也」
+    else 有候选
+        CF->>CF: 随机选一条（P2: isFavorite 加权）
+        CF->>DB: 更新 wish.drawnAt=now（不改 status）
+        DB-->>CF: ok
+        CF-->>SW: {wish}
+        SW-->>P: 抽中结果
+        P->>Anim: 动画停在结果
+        P->>U: 弹窗展示抽中愿望
+        U->>P: 选择「放回」或「去做」
+        opt 放回
+            P->>SW: returnWish(wishId)
+            SW->>CF: {action:'return'}
+            CF->>DB: drawnAt=null（保留 pending）
+        end
+        opt 去做
+            P->>SW: startWish(wishId)
+            SW->>CF: {action:'start'}
+            CF->>CF: 校验 status=='pending'
+            CF->>DB: 更新 status:'ongoing'
+            P->>U: 提示「完成后记得来打卡」
+        end
+    end
+
+%% ===== 4.4 打卡流程（含媒体上传）=====
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant P as Page: checkin/index
+    participant MU as media-uploader 组件
+    participant SM as MediaService
+    participant ST as 云存储
+    participant SC as CheckInService
+    participant CF as 云函数 checkin
+    participant DB as 云数据库
+
+    U->>P: 点击「去打卡」（某 ongoing 愿望）
+    P->>U: 弹出打卡面板
+    U->>MU: 选择照片/视频（wx.chooseMedia ≤9）
+    MU->>U: 展示缩略图（可删除/预览）
+    U->>P: 输入备注（≤500字）
+    U->>P: 点击「完成打卡」
+    P->>P: validator 校验
+    loop 逐个上传媒体
+        P->>SM: uploadMedia(filePath, cloudPath)
+        SM->>ST: wx.cloud.uploadFile
+        ST-->>SM: fileId（失败重试≤2）
+        SM-->>P: fileId
+    end
+    P->>SC: createCheckIn({wishId,note,mediaList:[{fileId,type}],location?})
+    SC->>CF: callFunction({action:'create',...})
+    CF->>CF: 校验 wish.status=='ongoing' 且 openid 属于 couple
+    CF->>DB: insert checkin{mediaList,...}
+    CF->>DB: 事务更新 wish.status='completed', completedAt=now
+    DB-->>CF: ok
+    CF-->>SC: {checkIn}
+    SC-->>P: 成功
+    P->>U: 关闭面板，列表移入「已完成」
+    Note over P: 若云函数失败：异步调用 MediaService.deleteMedia 清理已上传文件

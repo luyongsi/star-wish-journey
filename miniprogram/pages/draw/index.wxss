@@ -1,0 +1,140 @@
+/* pages/draw/index.wxss */
+.draw-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 32rpx;
+  padding-bottom: 120rpx;
+}
+
+.draw-header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.draw-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #2D3436;
+}
+
+.draw-subtitle {
+  display: block;
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #FF6B9D;
+  margin-top: 8rpx;
+}
+
+.draw-animation-area {
+  width: 100%;
+  margin: 40rpx 0;
+}
+
+.draw-count {
+  margin-bottom: 40rpx;
+}
+
+.draw-count text {
+  font-size: 26rpx;
+  color: #B2BEC3;
+}
+
+.draw-action {
+  width: 100%;
+}
+
+.draw-btn {
+  font-size: 36rpx;
+  padding: 28rpx 0;
+}
+
+.draw-empty {
+  width: 100%;
+}
+
+.loading {
+  text-align: center;
+  padding: 60rpx;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}
+
+/* 结果弹窗 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-modal {
+  width: 80%;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 48rpx 32rpx;
+  text-align: center;
+  animation: modalPop 0.3s ease;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.result-header {
+  margin-bottom: 32rpx;
+}
+
+.result-celebrate {
+  font-size: 72rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.result-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FF6B9D;
+}
+
+.result-wish {
+  background: #FFF5F8;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.result-wish-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2D3436;
+  margin-bottom: 12rpx;
+}
+
+.result-wish-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #636E72;
+  line-height: 1.5;
+}
+
+.result-actions {
+  display: flex;
+  gap: 24rpx;
+}
+
+.result-actions .btn-secondary,
+.result-actions .btn-primary {
+  flex: 1;
+  font-size: 30rpx;
+}

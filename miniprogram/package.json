@@ -1,0 +1,7 @@
+{
+  "name": "wishpool-miniprogram",
+  "version": "1.0.0",
+  "description": "心愿拾光 - 情侣愿望池微信小程序前端依赖",
+  "main": "app.js",
+  "dependencies": {}
+}

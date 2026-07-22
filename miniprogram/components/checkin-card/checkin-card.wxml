@@ -1,0 +1,28 @@
+<!-- components/checkin-card/checkin-card.wxml -->
+<view class="checkin-card" bindtap="handleTap">
+  <!-- 缩略图 -->
+  <view class="thumb-wrapper">
+    <image wx:if="{{thumbUrl}}" class="thumb-img" src="{{thumbUrl}}" mode="aspectFill" lazy-load />
+    <view wx:else class="thumb-placeholder">
+      <text class="placeholder-icon">{{icon}}</text>
+    </view>
+    <view class="media-count" wx:if="{{mediaCount > 1}}">
+      <text>{{mediaCount}}</text>
+    </view>
+  </view>
+
+  <!-- 内容 -->
+  <view class="checkin-content">
+    <view class="checkin-title">
+      <text class="checkin-icon">{{icon}}</text>
+      <text class="title-text">{{checkIn.wishTitle || '愿望打卡'}}</text>
+    </view>
+    <view class="checkin-note" wx:if="{{shortNote}}">{{shortNote}}</view>
+    <view class="checkin-date">{{dateStr}}</view>
+  </view>
+
+  <!-- 箭头 -->
+  <view class="arrow">
+    <text class="arrow-icon">›</text>
+  </view>
+</view>

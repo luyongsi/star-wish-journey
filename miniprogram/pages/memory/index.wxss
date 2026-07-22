@@ -1,0 +1,136 @@
+/* pages/memory/index.wxss */
+.memory-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 120rpx;
+}
+
+.timeline {
+  padding-left: 8rpx;
+}
+
+.timeline-group {
+  margin-bottom: 16rpx;
+}
+
+.month-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.month-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #FF6B9D;
+  margin-right: 16rpx;
+}
+
+.month-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #FF6B9D;
+}
+
+.month-items {
+  padding-left: 32rpx;
+  border-left: 2rpx solid #FFE0EC;
+  margin-left: 7rpx;
+}
+
+.memory-item {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  margin-left: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.memory-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 24rpx;
+  background: #FFF5F8;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb-placeholder text {
+  font-size: 48rpx;
+}
+
+.memory-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.memory-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2D3436;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-note {
+  font-size: 24rpx;
+  color: #636E72;
+  display: block;
+  margin-top: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-date {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  display: block;
+  margin-top: 8rpx;
+}
+
+.memory-arrow {
+  font-size: 40rpx;
+  color: #B2BEC3;
+  flex-shrink: 0;
+  padding-left: 12rpx;
+}
+
+.load-more,
+.no-more {
+  text-align: center;
+  padding: 32rpx;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}
+
+.load-more text {
+  color: #FF6B9D;
+}
+
+.loading {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "wishpool-tests",
+  "version": "1.0.0",
+  "description": "心愿拾光情侣愿望池 - 测试套件",
+  "scripts": {
+    "test": "node tests/run-all.js"
+  },
+  "private": true
+}

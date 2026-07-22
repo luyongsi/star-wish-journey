@@ -1,0 +1,120 @@
+%% 心愿拾光 - 类图（数据模型 + 服务类）
+%% 详见 docs/ARCHITECTURE.md 第 3 节
+
+classDiagram
+    class User {
+        +String _id
+        +String openid
+        +String nickName
+        +String avatarUrl
+        +String coupleId
+        +Date createdAt
+        +Date updatedAt
+    }
+    class Couple {
+        +String _id
+        +String pairCode
+        +String userA
+        +String userB
+        +String status
+        +Date anniversary
+        +Date createdAt
+        +Date updatedAt
+    }
+    class Wish {
+        +String _id
+        +String coupleId
+        +Array~String~ members
+        +String title
+        +String description
+        +String category
+        +String status
+        +String createdBy
+        +Date drawnAt
+        +Date completedAt
+        +Boolean isFavorite
+        +Date createdAt
+    }
+    class CheckIn {
+        +String _id
+        +String wishId
+        +String coupleId
+        +Array~String~ members
+        +String checkInBy
+        +String note
+        +Array~Object~ mediaList
+        +Object location
+        +Date createdAt
+    }
+    class MediaItem {
+        +String fileId
+        +String type
+        +String url
+        +String thumbUrl
+    }
+
+    User "1" --> "0..1" Couple : coupleId
+    Couple "1" --> "2" User : userA/userB
+    Couple "1" --> "0..*" Wish : coupleId
+    Wish "1" --> "0..1" CheckIn : wishId
+    CheckIn "1" --> "0..*" MediaItem : mediaList
+
+    class AuthService {
+        +login() Object
+        +getUser() Object
+    }
+    class PairService {
+        +createPair() Object
+        +joinPair(pairCode) Object
+        +unbind() void
+        +getCoupleInfo() Object
+    }
+    class WishService {
+        +createWish(data) Object
+        +updateWish(id, data) Object
+        +deleteWish(id) void
+        +listWishes(filter) Array
+        +drawWish() Object
+        +startWish(id) Object
+        +returnWish(id) Object
+    }
+    class CheckInService {
+        +createCheckIn(data) Object
+        +listCheckIns(status) Array
+        +getCheckInDetail(id) Object
+        +deleteCheckIn(id) void
+    }
+    class MediaService {
+        +uploadMedia(filePath, cloudPath) String
+        +deleteMedia(fileId) void
+        +getTempFileURL(fileIds) Array
+    }
+    class MemoryService {
+        +getTimeline(page) Object
+        +getMemoryDetail(id) Object
+    }
+    class RealtimeUtil {
+        +watchWishes(coupleId, cb) Watcher
+        +watchCheckIns(coupleId, cb) Watcher
+        +unwatch(watcher) void
+    }
+    class Store {
+        +Object user
+        +Object couple
+        +setUser(u) void
+        +setCouple(c) void
+        +on(event, cb) void
+        +emit(event, data) void
+    }
+
+    AuthService --> User
+    PairService --> Couple
+    WishService --> Wish
+    CheckInService --> CheckIn
+    CheckInService --> MediaService
+    MediaService ..> MediaItem
+    MemoryService --> CheckIn
+    RealtimeUtil ..> Wish : watch
+    RealtimeUtil ..> CheckIn : watch
+    Store --> User
+    Store --> Couple

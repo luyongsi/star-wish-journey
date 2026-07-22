@@ -1,0 +1,87 @@
+/* components/media-uploader/media-uploader.wxss */
+.media-uploader {
+  width: 100%;
+}
+
+.media-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.media-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #F5F5F5;
+}
+
+.media-thumb {
+  width: 100%;
+  height: 100%;
+}
+
+.video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-icon {
+  color: #FFFFFF;
+  font-size: 24rpx;
+  margin-left: 4rpx;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0 0 0 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  color: #FFFFFF;
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.add-btn {
+  width: 200rpx;
+  height: 200rpx;
+  border: 2rpx dashed #FFB3CD;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #FFF5F8;
+}
+
+.add-icon {
+  font-size: 56rpx;
+  color: #FF6B9D;
+  line-height: 1;
+}
+
+.add-text {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  margin-top: 8rpx;
+}
