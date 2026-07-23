@@ -274,19 +274,31 @@ async function _handleUnbind(openid) {
 
 /**
  * 获取贴贴信息 + 伴侣信息 + 在一起天数
+ * 注意：不使用 _checkCouple()，因为 pending 状态的 couple 也需要能查询
  */
 async function _handleInfo(openid) {
-  let couple;
-  try {
-    couple = await _checkCouple(openid);
-  } catch (err) {
-    return { code: err.code, data: null, message: err.message };
+  // 查询用户
+  const userQuery = await usersCollection.where({ openid }).get();
+  if (userQuery.data.length === 0 || !userQuery.data[0].coupleId) {
+    return { code: 1001, data: null, message: '未贴贴' };
+  }
+
+  const user = userQuery.data[0];
+  const coupleQuery = await couplesCollection.doc(user.coupleId).get();
+  if (!coupleQuery.data) {
+    return { code: 1001, data: null, message: '未贴贴' };
+  }
+
+  const couple = coupleQuery.data;
+
+  // status 为 pending/active 都能正常返回，只有 unbound 才报未贴贴
+  if (couple.status === 'unbound') {
+    return { code: 1001, data: null, message: '已解除贴贴' };
   }
 
   const { partner, anniversaryDays } = await _getPartnerInfo(couple);
 
   // 获取当前用户信息
-  const userQuery = await usersCollection.where({ openid }).get();
   const currentUser = userQuery.data[0] || null;
 
   return {
