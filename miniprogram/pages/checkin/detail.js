@@ -107,25 +107,4 @@ Page({
       });
     }
   },
-
-  /**
-   * 删除打卡
-   */
-  handleDelete() {
-    wx.showModal({
-      title: '确认删除',
-      content: '确定删除这条打卡记录吗？',
-      confirmColor: '#E84393',
-      success: (res) => {
-        if (res.confirm) {
-          checkinService.deleteCheckIn(this.data.checkInId, true)
-            .then(() => {
-              wx.showToast({ title: '已删除', icon: 'success' });
-              setTimeout(() => wx.navigateBack(), 1500);
-            })
-            .catch((err) => console.error('[checkin/detail] 删除失败:', err));
-        }
-      },
-    });
-  },
 });

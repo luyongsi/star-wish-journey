@@ -2,18 +2,25 @@
 .pool-page {
   min-height: 100vh;
   padding: 24rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
+/* ===== A1 标题栏 ===== */
 .pool-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24rpx;
+}
+
+.header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24rpx;
 }
 
 .header-title {
   flex: 1;
+  min-width: 0;
 }
 
 .title-text {
@@ -23,19 +30,12 @@
 }
 
 .header-stats {
-  position: absolute;
-  left: 24rpx;
-  top: 72rpx;
+  margin-top: 8rpx;
 }
 
 .stat-text {
   font-size: 24rpx;
   color: #B2BEC3;
-}
-
-.pool-header {
-  position: relative;
-  padding-top: 8rpx;
 }
 
 .add-btn {
@@ -46,6 +46,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-left: 24rpx;
   box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
 }
 
@@ -55,12 +57,278 @@
   line-height: 1;
 }
 
+/* ===== A2 今日愿望入口 ===== */
+.today-entry {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #FFF0F5 0%, #FFE6EF 100%);
+  border: 2rpx solid #FFE0EC;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.today-emoji {
+  font-size: 30rpx;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.today-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+
+.today-action {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #FF6B9D;
+  flex-shrink: 0;
+}
+
+/* ===== A3 对方动态 ===== */
+.updates-section {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.updates-header {
+  margin-bottom: 8rpx;
+}
+
+.updates-title {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #636E72;
+}
+
+.update-item {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.update-dot {
+  color: #FF6B9D;
+  font-size: 28rpx;
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
+
+.update-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+
+.update-time {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  flex-shrink: 0;
+}
+
+/* ===== A4 筛选区 ===== */
 .filter-section {
+  display: flex;
+  align-items: center;
   margin-bottom: 24rpx;
 }
 
+.filter-categories {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.view-switch {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 2rpx solid #FFE0EC;
+  border-radius: 32rpx;
+  padding: 4rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.view-btn {
+  width: 56rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28rpx;
+  font-size: 26rpx;
+  color: #B2BEC3;
+}
+
+.view-active {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.3);
+}
+
+/* ===== A5 列表视图 ===== */
 .wish-list {
   padding-bottom: 24rpx;
+}
+
+/* ===== A6 瀑布视图 ===== */
+.waterfall {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  padding-bottom: 24rpx;
+}
+
+.waterfall-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wf-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.wf-cover {
+  width: 100%;
+  display: block;
+}
+
+.wf-cover-placeholder {
+  width: 100%;
+  height: 0;
+  padding-bottom: 75%; /* 4:3 */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5F5F5;
+}
+
+.status-pending-icon { background: rgba(116, 185, 255, 0.12); }
+.status-ongoing-icon { background: rgba(253, 203, 110, 0.15); }
+.status-completed-icon { background: rgba(178, 190, 195, 0.12); }
+
+.wf-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64rpx;
+}
+
+.wf-body {
+  padding: 16rpx;
+}
+
+.wf-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2D3436;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.wf-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+
+.wf-category {
+  font-size: 22rpx;
+  color: #636E72;
+}
+
+.wf-adder {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  margin-top: 6rpx;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.status-pending { color: #74B9FF; background: rgba(116, 185, 255, 0.1); }
+.status-ongoing { color: #E17055; background: rgba(253, 203, 110, 0.15); }
+.status-completed { color: #B2BEC3; background: rgba(178, 190, 195, 0.1); }
+
+/* ===== A7 空态 ===== */
+.empty-pool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2D3436;
+  margin-bottom: 12rpx;
+}
+
+.empty-sub {
+  font-size: 26rpx;
+  color: #B2BEC3;
+  text-align: center;
+}
+
+.empty-actions {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 40rpx;
+}
+
+.empty-btn {
+  padding: 18rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.empty-category {
+  text-align: center;
+  padding: 100rpx 40rpx;
+  color: #B2BEC3;
+  font-size: 28rpx;
 }
 
 .loading {
@@ -70,7 +338,7 @@
   font-size: 26rpx;
 }
 
-/* 底部面板 */
+/* ===== 底部面板 ===== */
 .overlay {
   position: fixed;
   top: 0;
@@ -85,6 +353,8 @@
 
 .bottom-panel {
   width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
   background: #FFFFFF;
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx;
@@ -176,5 +446,85 @@
   padding: 20rpx 24rpx;
   font-size: 28rpx;
   box-sizing: border-box;
+  margin-bottom: 24rpx;
+}
+
+/* ===== A8 封面图 ===== */
+.cover-field {
   margin-bottom: 32rpx;
+}
+
+.panel-label {
+  display: block;
+  font-size: 26rpx;
+  color: #636E72;
+  margin-bottom: 16rpx;
+}
+
+.cover-row {
+  display: flex;
+  align-items: center;
+}
+
+.cover-preview {
+  position: relative;
+  width: 200rpx;
+  height: 150rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #F5F5F5;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cover-remove {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  font-size: 26rpx;
+  line-height: 36rpx;
+  text-align: center;
+}
+
+.cover-add {
+  width: 200rpx;
+  height: 150rpx;
+  border-radius: 16rpx;
+  border: 2rpx dashed #FFB3CD;
+  background: #FFF5F8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-add-icon {
+  font-size: 40rpx;
+  color: #FF6B9D;
+  line-height: 1;
+}
+
+.cover-add-text {
+  font-size: 22rpx;
+  color: #FF6B9D;
+  margin-top: 8rpx;
+}
+
+.cover-hint {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  margin-left: 16rpx;
+}
+
+.btn-disabled {
+  opacity: 0.6;
 }

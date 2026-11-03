@@ -3,13 +3,15 @@
     "pages/pool/index",
     "pages/draw/index",
     "pages/checkin/index",
+    "pages/memory/index",
     "pages/profile/index",
     "pages/pair/bind",
     "pages/wish/detail",
     "pages/checkin/detail",
     "pages/profile/settings",
-    "pages/memory/index",
-    "pages/memory/detail"
+    "pages/profile/edit",
+    "pages/inspiration/index",
+    "pages/memory/report"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -43,6 +45,12 @@
         "selectedIconPath": "assets/tab/checkin-active.png"
       },
       {
+        "pagePath": "pages/memory/index",
+        "text": "回忆",
+        "iconPath": "assets/tab/memory.png",
+        "selectedIconPath": "assets/tab/memory-active.png"
+      },
+      {
         "pagePath": "pages/profile/index",
         "text": "我的",
         "iconPath": "assets/tab/profile.png",
@@ -53,5 +61,8 @@
   "usingComponents": {},
   "sitemapLocation": "sitemap.json",
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ]
 }

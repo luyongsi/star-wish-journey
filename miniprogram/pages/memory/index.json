@@ -2,5 +2,5 @@
   "usingComponents": {
     "empty-state": "/components/empty-state/empty-state"
   },
-  "navigationBarTitleText": "回忆录"
+  "navigationBarTitleText": "回忆"
 }

@@ -42,20 +42,16 @@
     <text class="section-label">位置</text>
     <view class="location-content">
       <text class="location-icon">📍</text>
-      <text class="location-name">{{checkIn.location.name}}</text>
+      <view class="location-text">
+        <text class="location-name">{{checkIn.location.name}}</text>
+        <text class="location-address" wx:if="{{checkIn.location.address}}">{{checkIn.location.address}}</text>
+      </view>
     </view>
   </view>
 
   <!-- 时间 -->
   <view class="time-section">
     <text class="time-text">{{dateStr}}</text>
-  </view>
-
-  <!-- 操作 -->
-  <view class="action-section">
-    <view class="btn-danger" bindtap="handleDelete">
-      <text>删除打卡</text>
-    </view>
   </view>
 </view>
 

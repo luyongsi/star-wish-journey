@@ -1,0 +1,75 @@
+<!-- components/today-wish/today-wish.wxml -->
+<!-- 卡片形态：抽取页顶部 -->
+<view wx:if="{{mode === 'card'}}" class="today-card-wrap">
+  <view class="today-card" wx:if="{{loaded && !hidden && wish}}">
+    <view class="today-label">{{dateLabel}} · 今天的愿望</view>
+
+    <block wx:if="{{status === 'selected'}}">
+      <view class="today-selected" bindtap="handleGoCheckin">
+        <text>今天已选定：{{wish.title}}，去做吧 →</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="today-icon">{{icon}}</view>
+      <view class="today-title">{{wish.title}}</view>
+      <view class="today-meta">{{categoryLabel}} · {{wish.createdBy ? 'TA' : '我'}} 添加</view>
+      <view class="today-actions">
+        <view class="btn-ghost {{switchLeft <= 0 ? 'btn-disabled' : ''}}" bindtap="handleSwitch">
+          <text>{{switchLeft > 0 ? '换一个（还剩 ' + switchLeft + ' 次）' : '今天换够了，明天再来'}}</text>
+        </view>
+        <view class="btn-solid {{acting ? 'btn-disabled' : ''}}" bindtap="handleSelect">
+          <text>就今天！</text>
+        </view>
+      </view>
+      <view class="today-hide" bindtap="handleHide">
+        <text>明天再说</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="today-card empty" wx:elif="{{loaded && !hidden && status !== 'selected' && !wish}}">
+    <view class="today-label">{{dateLabel}} · 今天的愿望</view>
+    <view class="today-empty-text">愿望池空了，先去添加愿望吧</view>
+    <view class="btn-ghost small" bindtap="handleGoCheckin">
+      <text>去看看愿望池</text>
+    </view>
+  </view>
+</view>
+
+<!-- 抽屉形态：愿望池顶部入口点击后弹出 -->
+<view wx:if="{{mode === 'drawer' && visible}}" class="overlay" bindtap="handleClose">
+  <view class="drawer" catchtap="handleStopPropagation">
+    <view class="drawer-header">
+      <text class="drawer-title">{{dateLabel}} · 今天的愿望</text>
+      <text class="drawer-close" bindtap="handleClose">×</text>
+    </view>
+
+    <block wx:if="{{loaded && !hidden && wish}}">
+      <view class="drawer-icon">{{icon}}</view>
+      <view class="drawer-wish-title">{{wish.title}}</view>
+      <view class="drawer-meta">{{categoryLabel}}</view>
+
+      <block wx:if="{{status === 'selected'}}">
+        <view class="btn-solid full" bindtap="handleGoCheckin">
+          <text>今天已选定，去做吧 →</text>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="btn-solid full {{acting ? 'btn-disabled' : ''}}" bindtap="handleSelect">
+          <text>就今天！</text>
+        </view>
+        <view class="btn-ghost full {{switchLeft <= 0 ? 'btn-disabled' : ''}}" bindtap="handleSwitch">
+          <text>{{switchLeft > 0 ? '换一个（还剩 ' + switchLeft + ' 次）' : '今天换够了，明天再来'}}</text>
+        </view>
+        <view class="btn-text" bindtap="handleHide">
+          <text>明天再说</text>
+        </view>
+      </block>
+    </block>
+
+    <view wx:elif="{{loaded}}" class="drawer-empty">
+      <text>今天的愿望暂时不可用</text>
+    </view>
+  </view>
+</view>

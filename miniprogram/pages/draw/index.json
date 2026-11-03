@@ -1,6 +1,7 @@
 {
   "usingComponents": {
     "draw-animation": "/components/draw-animation/draw-animation",
-    "empty-state": "/components/empty-state/empty-state"
+    "empty-state": "/components/empty-state/empty-state",
+    "today-wish": "/components/today-wish/today-wish"
   }
 }

@@ -1,0 +1,198 @@
+/* pages/profile/edit.wxss */
+.edit-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+/* 表单卡片 */
+.form-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+}
+
+.form-label {
+  width: 140rpx;
+  flex-shrink: 0;
+  font-size: 30rpx;
+  color: #2D3436;
+}
+
+.form-input {
+  flex: 1;
+  font-size: 30rpx;
+  color: #2D3436;
+  text-align: right;
+}
+
+.input-placeholder {
+  color: #B2BEC3;
+  font-size: 28rpx;
+}
+
+.form-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  padding-left: 140rpx;
+}
+
+.hint-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #B2BEC3;
+}
+
+.hint-count {
+  font-size: 24rpx;
+  color: #B2BEC3;
+  margin-left: 16rpx;
+}
+
+.clear-btn {
+  font-size: 26rpx;
+  color: #FF6B9D;
+  margin-left: 24rpx;
+  padding: 4rpx 8rpx;
+}
+
+/* 头像 */
+.avatar-row {
+  justify-content: space-between;
+}
+
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-preview {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: #FFF5F8;
+}
+
+.avatar-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #FFE0EC;
+  box-sizing: border-box;
+}
+
+.avatar-empty text {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #FF6B9D;
+}
+
+.upload-status {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #FFFFFF;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.avatar-actions {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 24rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0;
+  margin: 0;
+  background: #FFF5F8;
+  color: #FF6B9D;
+  border: 2rpx solid #FFE0EC;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.wechat-btn {
+  box-sizing: border-box;
+}
+
+.upload-failed {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #E84393;
+}
+
+/* 日期 */
+.date-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.date-text {
+  font-size: 30rpx;
+  color: #2D3436;
+}
+
+.date-empty {
+  color: #B2BEC3;
+}
+
+.form-arrow {
+  font-size: 40rpx;
+  color: #B2BEC3;
+  margin-left: 12rpx;
+}
+
+/* 保存 */
+.save-btn {
+  margin-top: 48rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.3);
+}
+
+.btn-disabled {
+  opacity: 0.5;
+}
+
+.loading {
+  text-align: center;
+  padding: 48rpx 0;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}

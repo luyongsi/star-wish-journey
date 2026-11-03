@@ -65,9 +65,21 @@ exports.main = async (event, context) => {
       }
     }
 
+    // 伴侣信息（用于「我的」页展示 TA 的昵称头像）
+    let partner = null;
+    if (couple && couple.status === 'active') {
+      const partnerOpenid = couple.userA === openid ? couple.userB : couple.userA;
+      if (partnerOpenid) {
+        const partnerQuery = await usersCollection.where({ openid: partnerOpenid }).get();
+        if (partnerQuery.data.length > 0) {
+          partner = partnerQuery.data[0];
+        }
+      }
+    }
+
     return {
       code: 0,
-      data: { user: userRecord, couple },
+      data: { user: userRecord, couple, partner },
       message: 'ok',
     };
   } catch (err) {

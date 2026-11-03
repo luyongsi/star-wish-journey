@@ -1,0 +1,24 @@
+# ---- 依赖 ----
+node_modules/
+miniprogram_npm/
+cloudfunctions/**/node_modules/
+
+# ---- 构建产物 ----
+dist/
+build/
+*.tgz
+
+# ---- 各云函数的依赖锁 ----
+cloudfunctions/**/package-lock.json
+
+# ---- 微信开发者工具 ----
+.idea/
+.vscode/
+*.log
+
+# ---- 设计/文档产出（本地交付物，不入库） ----
+outputs/
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db

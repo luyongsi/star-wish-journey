@@ -1,0 +1,172 @@
+/* pages/inspiration/index.wxss */
+.inspiration-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 返回 */
+.back-row {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 4rpx;
+  margin-bottom: 16rpx;
+}
+
+.back-icon {
+  font-size: 44rpx;
+  line-height: 1;
+  color: #636E72;
+  margin-right: 4rpx;
+}
+
+.back-text {
+  font-size: 26rpx;
+  color: #636E72;
+}
+
+/* H1 分类筛选 */
+.filter-scroll {
+  white-space: nowrap;
+  width: 100%;
+  margin-bottom: 24rpx;
+}
+
+.filter-inner {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 4rpx 0;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFE0EC;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.pill-active {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  border-color: #FF6B9D;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.3);
+}
+
+.pill-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.pill-label {
+  font-size: 26rpx;
+  color: #636E72;
+}
+
+.pill-active .pill-label {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* H2 模板列表 */
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.template-card {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.template-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.meta-icon {
+  font-size: 22rpx;
+  margin-right: 6rpx;
+}
+
+.meta-label {
+  font-size: 22rpx;
+  color: #B2BEC3;
+}
+
+.template-desc {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #B2BEC3;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 加入按钮 */
+.add-btn {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  padding: 14rpx 26rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.25);
+}
+
+.add-btn-disabled,
+.add-btn-disabled:active {
+  background: #F1F2F6;
+  color: #B2BEC3;
+  opacity: 0.45;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* 底部说明 */
+.footer-note {
+  margin-top: 32rpx;
+  text-align: center;
+}
+
+.footer-note text {
+  font-size: 22rpx;
+  color: #B2BEC3;
+}
+
+/* 加载中 */
+.loading {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #B2BEC3;
+  font-size: 26rpx;
+}

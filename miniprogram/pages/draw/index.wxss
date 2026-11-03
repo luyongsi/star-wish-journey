@@ -5,12 +5,19 @@
   flex-direction: column;
   align-items: center;
   padding: 40rpx 32rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* C1 今日愿望卡片 */
+.today-section {
+  width: 100%;
+  margin-bottom: 8rpx;
 }
 
 .draw-header {
   text-align: center;
   margin-bottom: 40rpx;
+  margin-top: 32rpx;
 }
 
 .draw-title {
@@ -30,16 +37,89 @@
 
 .draw-animation-area {
   width: 100%;
-  margin: 40rpx 0;
+  margin: 20rpx 0 40rpx;
 }
 
+/* C3 抽取条件 */
+.condition-section {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.08);
+}
+
+.condition-block + .condition-block {
+  margin-top: 20rpx;
+}
+
+.condition-label {
+  display: block;
+  font-size: 24rpx;
+  color: #B2BEC3;
+  margin-bottom: 12rpx;
+}
+
+.pill-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.pill-scroll-inner {
+  display: inline-flex;
+  gap: 12rpx;
+}
+
+.pill-row {
+  display: flex;
+  gap: 12rpx;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 10rpx 28rpx;
+  border-radius: 32rpx;
+  background: #FFF5F8;
+  border: 2rpx solid #FFE0EC;
+  flex-shrink: 0;
+}
+
+.pill-active {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  border-color: #FF6B9D;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 157, 0.3);
+}
+
+.pill-text {
+  font-size: 26rpx;
+  color: #636E72;
+}
+
+.pill-active .pill-text {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* C4 剩余数量 */
 .draw-count {
-  margin-bottom: 40rpx;
+  margin: 24rpx 0 32rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .draw-count text {
   font-size: 26rpx;
   color: #B2BEC3;
+}
+
+.draw-count-tip {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #FF6B9D;
 }
 
 .draw-action {
@@ -62,7 +142,7 @@
   font-size: 26rpx;
 }
 
-/* 结果弹窗 */
+/* 弹窗 */
 .overlay {
   position: fixed;
   top: 0;
@@ -111,6 +191,9 @@
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 32rpx;
+  max-height: 40vh;
+  overflow-y: auto;
+  text-align: left;
 }
 
 .result-wish-title {
@@ -119,6 +202,7 @@
   font-weight: 700;
   color: #2D3436;
   margin-bottom: 12rpx;
+  word-break: break-all;
 }
 
 .result-wish-desc {
@@ -135,6 +219,55 @@
 
 .result-actions .btn-secondary,
 .result-actions .btn-primary {
+  flex: 1;
+  font-size: 30rpx;
+}
+
+/* 自选日期弹窗 */
+.date-modal {
+  width: 78%;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx 32rpx;
+  animation: modalPop 0.3s ease;
+}
+
+.date-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2D3436;
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+.date-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFF5F8;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.date-value {
+  font-size: 30rpx;
+  color: #FF6B9D;
+  font-weight: 600;
+}
+
+.date-arrow {
+  font-size: 36rpx;
+  color: #B2BEC3;
+}
+
+.date-actions {
+  display: flex;
+  gap: 24rpx;
+}
+
+.date-actions .btn-secondary,
+.date-actions .btn-primary {
   flex: 1;
   font-size: 30rpx;
 }

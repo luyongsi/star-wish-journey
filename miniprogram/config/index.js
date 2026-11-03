@@ -47,12 +47,22 @@ const coupleStatusMap = {
 
 /**
  * 媒体限制
+ * 说明：wx.cloud.uploadFile 单个文件硬上限为 50MB（平台限制，无法调大），
+ * 因此超过阈值的媒体会先尝试压缩，压缩后仍超限才拦截。
  */
 const mediaLimits = {
   maxCount: 9,
+  // 视频时长上限（wx.chooseMedia 的 maxDuration 最大 60 秒）
   maxVideoDuration: 30,
-  maxVideoSize: 50 * 1024 * 1024,
-  maxImageSize: 10 * 1024 * 1024,
+  // 平台硬上限：wx.cloud.uploadFile 单文件不得超过 50MB（图片/视频同一上限）
+  maxUploadSize: 50 * 1024 * 1024,
+  // 超过以下阈值时先压缩再上传
+  videoCompressThreshold: 10 * 1024 * 1024, // 10MB
+  imageCompressThreshold: 1.5 * 1024 * 1024, // 1.5MB
+  // 压缩参数
+  videoCompressQuality: 'medium', // low | medium | high
+  imageCompressQuality: 75, // 0-100
+  imageMaxWidth: 1920, // px，超出则等比压缩
 };
 
 /**

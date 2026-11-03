@@ -56,14 +56,18 @@
 .checkin-title {
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .checkin-icon {
+  flex-shrink: 0;
   font-size: 28rpx;
   margin-right: 8rpx;
 }
 
 .title-text {
+  flex: 1;
+  min-width: 0;
   font-size: 28rpx;
   font-weight: 600;
   color: #2D3436;

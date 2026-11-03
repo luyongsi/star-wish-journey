@@ -1,0 +1,55 @@
+<!-- pages/inspiration/index.wxml -->
+<view class="inspiration-page">
+  <!-- 返回 -->
+  <view class="back-row" bindtap="handleBack">
+    <text class="back-icon">‹</text>
+    <text class="back-text">返回</text>
+  </view>
+
+  <!-- H1 分类筛选 -->
+  <scroll-view scroll-x class="filter-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="filter-inner">
+      <view
+        class="filter-pill {{selectedCategory === item.key ? 'pill-active' : ''}}"
+        wx:for="{{filters}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="handleSelectCategory"
+      >
+        <text class="pill-icon">{{item.icon}}</text>
+        <text class="pill-label">{{item.label}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- H2 模板列表 -->
+  <view class="template-list">
+    <view class="template-card" wx:for="{{visibleTemplates}}" wx:key="key">
+      <view class="template-main">
+        <text class="template-title">{{item.title}}</text>
+        <view class="template-meta">
+          <text class="meta-icon">{{item.categoryIcon}}</text>
+          <text class="meta-label">{{item.categoryLabel}}</text>
+        </view>
+        <text class="template-desc">{{item.desc}}</text>
+      </view>
+      <view
+        class="add-btn {{item.joined ? 'add-btn-disabled' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="handleAdd"
+      >
+        <text>{{item.joined ? '已加入' : '＋ 加入'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部说明 -->
+  <view class="footer-note" wx:if="{{!loading}}">
+    <text>加入后可回到愿望池查看，愿望将在抽取时出现</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

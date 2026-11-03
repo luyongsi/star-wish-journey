@@ -1,29 +1,76 @@
 <!-- pages/pool/index.wxml -->
 <view class="pool-page">
-  <!-- 标题栏 -->
+  <!-- A1 标题栏 -->
   <view class="pool-header">
-    <view class="header-title">
-      <text class="title-text">我们的愿望池</text>
+    <view class="header-top">
+      <view class="header-title">
+        <text class="title-text">我们的愿望池</text>
+      </view>
+      <view class="add-btn" bindtap="handleShowAdd">
+        <text class="add-icon">+</text>
+      </view>
     </view>
     <view class="header-stats">
-      <text class="stat-text">共 {{stats.total}} 个 · 已完成 {{stats.completed}} 个</text>
-    </view>
-    <view class="add-btn" bindtap="handleShowAdd">
-      <text class="add-icon">+</text>
+      <text class="stat-text">共 {{stats.total}} 个 · 已完成 {{stats.completed}} 个 · 进行中 {{stats.ongoing}} 个</text>
     </view>
   </view>
 
-  <!-- 分类筛选 -->
+  <!-- A2 今日愿望入口 -->
+  <view class="today-entry" wx:if="{{todayEntry.show}}" bindtap="handleOpenToday">
+    <text class="today-emoji">🎯</text>
+    <text class="today-text">今天的愿望：{{todayEntry.title}}</text>
+    <text class="today-action">去看看 →</text>
+  </view>
+
+  <!-- A3 对方动态 -->
+  <view class="updates-section" wx:if="{{updates.length > 0}}">
+    <view class="updates-header">
+      <text class="updates-title">TA 的动态</text>
+    </view>
+    <view
+      class="update-item"
+      wx:for="{{updates}}"
+      wx:key="key"
+      data-type="{{item.type}}"
+      data-wish-id="{{item.wishId}}"
+      data-checkin-id="{{item.checkInId}}"
+      bindtap="handleUpdateTap"
+    >
+      <text class="update-dot">·</text>
+      <text class="update-text">{{item.text}}</text>
+      <text class="update-time">{{item.timeText}}</text>
+    </view>
+  </view>
+
+  <!-- A4 筛选区 -->
   <view class="filter-section">
-    <category-tag
-      mode="filter"
-      selected="{{selectedCategory}}"
-      bind:select="handleCategorySelect"
-    />
+    <view class="filter-categories">
+      <category-tag
+        mode="filter"
+        selected="{{selectedCategory}}"
+        bind:select="handleCategorySelect"
+      />
+    </view>
+    <view class="view-switch">
+      <view
+        class="view-btn {{view === 'list' ? 'view-active' : ''}}"
+        data-view="list"
+        bindtap="handleViewChange"
+      >
+        <text>☰</text>
+      </view>
+      <view
+        class="view-btn {{view === 'waterfall' ? 'view-active' : ''}}"
+        data-view="waterfall"
+        bindtap="handleViewChange"
+      >
+        <text>▦</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 愿望列表 -->
-  <view class="wish-list" wx:if="{{wishes.length > 0}}">
+  <!-- A5 列表视图 -->
+  <view class="wish-list" wx:if="{{view === 'list' && wishes.length > 0}}">
     <wish-card
       wx:for="{{wishes}}"
       wx:key="_id"
@@ -31,24 +78,107 @@
       bind:tap="handleWishTap"
       bind:edit="handleWishEdit"
       bind:delete="handleWishDelete"
+      bind:longpress="handleWishLongPress"
     />
   </view>
 
-  <!-- 空状态 -->
-  <empty-state
-    wx:elif="{{!loading}}"
-    icon="🌠"
-    text="愿望池还是空的"
-    subText="点击右上角 + 添加你们的第一个心愿吧"
-    actionText="添加愿望"
-    bind:action="handleShowAdd"
-  />
+  <!-- A6 瀑布视图 -->
+  <view class="waterfall" wx:elif="{{view === 'waterfall' && wishes.length > 0}}">
+    <view class="waterfall-column">
+      <view
+        class="wf-card"
+        wx:for="{{waterfallColumns.left}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="handleWaterfallTap"
+        bindlongpress="handleWaterfallLongPress"
+      >
+        <image
+          wx:if="{{item.coverUrl}}"
+          class="wf-cover"
+          src="{{item.coverUrl}}"
+          mode="widthFix"
+          lazy-load
+        />
+        <view wx:else class="wf-cover-placeholder {{item.statusClass}}-icon">
+          <text class="wf-icon">{{item.icon}}</text>
+        </view>
+        <view class="wf-body">
+          <view class="wf-title">{{item.title}}</view>
+          <view class="wf-meta">
+            <text class="wf-category">{{item.icon}} {{item.categoryLabel}}</text>
+            <text class="status-badge {{item.statusClass}}">{{item.statusLabel}}</text>
+          </view>
+          <view class="wf-adder">{{item.adderText}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="waterfall-column">
+      <view
+        class="wf-card"
+        wx:for="{{waterfallColumns.right}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="handleWaterfallTap"
+        bindlongpress="handleWaterfallLongPress"
+      >
+        <image
+          wx:if="{{item.coverUrl}}"
+          class="wf-cover"
+          src="{{item.coverUrl}}"
+          mode="widthFix"
+          lazy-load
+        />
+        <view wx:else class="wf-cover-placeholder {{item.statusClass}}-icon">
+          <text class="wf-icon">{{item.icon}}</text>
+        </view>
+        <view class="wf-body">
+          <view class="wf-title">{{item.title}}</view>
+          <view class="wf-meta">
+            <text class="wf-category">{{item.icon}} {{item.categoryLabel}}</text>
+            <text class="status-badge {{item.statusClass}}">{{item.statusLabel}}</text>
+          </view>
+          <view class="wf-adder">{{item.adderText}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- A7 空态：全部分类 total = 0 -->
+  <view class="empty-pool" wx:elif="{{!loading && stats.total === 0}}">
+    <text class="empty-icon">🌠</text>
+    <text class="empty-title">愿望池还是空的</text>
+    <text class="empty-sub">点击右上角 ＋ 添加，或看看灵感库</text>
+    <view class="empty-actions">
+      <view class="btn-primary empty-btn" bindtap="handleShowAdd">
+        <text>添加愿望</text>
+      </view>
+      <view class="btn-secondary empty-btn" bindtap="handleGoInspiration">
+        <text>逛逛灵感库 →</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- A7 空态：某分类下为空 -->
+  <view class="empty-category" wx:elif="{{!loading && wishes.length === 0}}">
+    <text>该分类下还没有愿望</text>
+  </view>
 
   <!-- 加载中 -->
   <view class="loading" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>
 </view>
+
+<!-- 今日愿望抽屉 -->
+<today-wish
+  mode="drawer"
+  visible="{{showTodayDrawer}}"
+  bind:close="handleTodayClose"
+  bind:hidden="handleTodayHidden"
+  bind:selected="handleTodaySelected"
+  bind:change="handleTodayChange"
+/>
 
 <!-- 新增愿望面板 -->
 <view class="overlay" wx:if="{{showAddPanel}}" bindtap="handleCloseAdd">
@@ -84,8 +214,33 @@
         value="{{newWish.description}}"
         bindinput="handleDescInput"
       />
-      <view class="btn-primary" bindtap="handleSubmitAdd">
-        <text>添加愿望</text>
+
+      <!-- 封面图（选填） -->
+      <view class="cover-field">
+        <text class="panel-label">封面图（选填）</text>
+        <view class="cover-row">
+          <view class="cover-preview" wx:if="{{newWish.coverTempPath || newWish.coverPreview}}">
+            <image
+              class="cover-img"
+              src="{{newWish.coverTempPath || newWish.coverPreview}}"
+              mode="aspectFill"
+            />
+            <view class="cover-remove" catchtap="handleRemoveCover">
+              <text>×</text>
+            </view>
+          </view>
+          <view class="cover-add" wx:else bindtap="handleChooseCover">
+            <text class="cover-add-icon">＋</text>
+            <text class="cover-add-text">从相册选择</text>
+          </view>
+          <view class="cover-hint" wx:if="{{uploadingCover}}">
+            <text>上传中...</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="btn-primary {{submitting || uploadingCover ? 'btn-disabled' : ''}}" bindtap="handleSubmitAdd">
+        <text>{{uploadingCover ? '上传中...' : '添加愿望'}}</text>
       </view>
     </view>
   </view>
@@ -125,8 +280,33 @@
         value="{{newWish.description}}"
         bindinput="handleDescInput"
       />
-      <view class="btn-primary" bindtap="handleSubmitEdit">
-        <text>保存修改</text>
+
+      <!-- 封面图（选填） -->
+      <view class="cover-field">
+        <text class="panel-label">封面图（选填）</text>
+        <view class="cover-row">
+          <view class="cover-preview" wx:if="{{newWish.coverTempPath || newWish.coverPreview}}">
+            <image
+              class="cover-img"
+              src="{{newWish.coverTempPath || newWish.coverPreview}}"
+              mode="aspectFill"
+            />
+            <view class="cover-remove" catchtap="handleRemoveCover">
+              <text>×</text>
+            </view>
+          </view>
+          <view class="cover-add" wx:else bindtap="handleChooseCover">
+            <text class="cover-add-icon">＋</text>
+            <text class="cover-add-text">从相册选择</text>
+          </view>
+          <view class="cover-hint" wx:if="{{uploadingCover}}">
+            <text>上传中...</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="btn-primary {{submitting || uploadingCover ? 'btn-disabled' : ''}}" bindtap="handleSubmitEdit">
+        <text>{{uploadingCover ? '上传中...' : '保存修改'}}</text>
       </view>
     </view>
   </view>

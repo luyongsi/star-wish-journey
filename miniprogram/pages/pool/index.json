@@ -2,7 +2,8 @@
   "usingComponents": {
     "wish-card": "/components/wish-card/wish-card",
     "category-tag": "/components/category-tag/category-tag",
-    "empty-state": "/components/empty-state/empty-state"
+    "today-wish": "/components/today-wish/today-wish"
   },
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

@@ -5,12 +5,20 @@
     style="transform: translateX({{swipeOffset}}rpx); transition: transform 0.2s ease;"
     bindtouchstart="handleTouchStart"
     bindtouchend="handleTouchEnd"
+    bindlongpress="handleLongPress"
     bindtap="handleTap"
   >
 
-    <!-- 分类图标 -->
+    <!-- 封面缩略图：有封面用图片，无封面用分类图标 -->
     <view class="card-icon {{statusClass}}-icon">
-      <text class="icon-emoji">{{icon}}</text>
+      <image
+        wx:if="{{coverUrl}}"
+        class="card-cover"
+        src="{{coverUrl}}"
+        mode="aspectFill"
+        lazy-load
+      />
+      <text wx:else class="icon-emoji">{{icon}}</text>
     </view>
 
     <!-- 主体内容 -->
@@ -23,8 +31,11 @@
       </view>
       <view class="card-desc" wx:if="{{shortDesc}}">{{shortDesc}}</view>
       <view class="card-footer">
-        <text class="card-time">{{relativeTime}}</text>
-        <text class="card-favorite" wx:if="{{wish.isFavorite}}">⭐</text>
+        <text class="card-meta">{{metaText}}</text>
+        <text
+          class="card-planned {{plannedOverdue ? 'planned-overdue' : ''}}"
+          wx:if="{{hasPlanned}}"
+        >📅 {{plannedText}}</text>
       </view>
     </view>
   </view>

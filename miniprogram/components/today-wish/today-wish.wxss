@@ -1,0 +1,181 @@
+/* components/today-wish/today-wish.wxss */
+.today-card-wrap {
+  width: 100%;
+}
+
+.today-card {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 28rpx 24rpx 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 157, 0.12);
+  text-align: center;
+}
+
+.today-label {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  margin-bottom: 12rpx;
+}
+
+.today-icon {
+  font-size: 56rpx;
+  line-height: 1.2;
+}
+
+.today-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2D3436;
+  margin-top: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.today-meta {
+  font-size: 22rpx;
+  color: #B2BEC3;
+  margin-top: 8rpx;
+}
+
+.today-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.btn-ghost,
+.btn-solid {
+  flex: 1;
+  padding: 18rpx 0;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.btn-ghost {
+  background: #FFF5F8;
+  color: #FF6B9D;
+  border: 2rpx solid #FFE0EC;
+}
+
+.btn-solid {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8EB3 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.btn-disabled {
+  opacity: 0.45;
+}
+
+.today-hide {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #B2BEC3;
+  padding: 6rpx;
+}
+
+.today-selected {
+  background: #FFF5F8;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: #FF6B9D;
+  font-weight: 600;
+}
+
+.today-empty-text {
+  font-size: 26rpx;
+  color: #B2BEC3;
+  padding: 16rpx 0;
+}
+
+.btn-ghost.small {
+  display: inline-block;
+  padding: 14rpx 40rpx;
+  flex: none;
+}
+
+/* 抽屉 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.drawer {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  text-align: center;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.drawer-title {
+  font-size: 28rpx;
+  color: #636E72;
+}
+
+.drawer-close {
+  font-size: 44rpx;
+  color: #B2BEC3;
+  line-height: 1;
+}
+
+.drawer-icon {
+  font-size: 64rpx;
+}
+
+.drawer-wish-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #2D3436;
+  margin-top: 8rpx;
+}
+
+.drawer-meta {
+  font-size: 24rpx;
+  color: #B2BEC3;
+  margin: 8rpx 0 24rpx;
+}
+
+.btn-solid.full,
+.btn-ghost.full {
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.btn-text {
+  font-size: 26rpx;
+  color: #B2BEC3;
+  padding: 12rpx;
+}
+
+.drawer-empty {
+  font-size: 26rpx;
+  color: #B2BEC3;
+  padding: 40rpx 0;
+}

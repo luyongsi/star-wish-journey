@@ -22,8 +22,10 @@
 
     <!-- 添加按钮 -->
     <view class="add-btn" wx:if="{{localMedia.length < maxCount}}" bindtap="handleChoose">
-      <text class="add-icon">+</text>
-      <text class="add-text">{{localMedia.length}}/{{maxCount}}</text>
+      <view class="add-inner">
+        <text class="add-icon">+</text>
+        <text class="add-text">{{localMedia.length}}/{{maxCount}}</text>
+      </view>
     </view>
   </view>
 </view>

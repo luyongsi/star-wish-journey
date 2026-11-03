@@ -146,6 +146,11 @@ Page({
     const app = getApp();
     app.updateCouple(couple);
 
+    // 重新拉取登录态，保证 user.coupleId / partner 信息与服务端一致
+    app.refreshLogin().catch((err) => {
+      console.error('[pair/bind] 刷新登录态失败:', err);
+    });
+
     this.setData({ waitingText: '配对成功！正在进入...' });
 
     wx.showToast({ title: '配对成功！', icon: 'success' });
@@ -209,6 +214,9 @@ Page({
         store.setCouple(res.couple);
         const app = getApp();
         app.updateCouple(res.couple);
+        app.refreshLogin().catch((err) => {
+          console.error('[pair/bind] 刷新登录态失败:', err);
+        });
 
         wx.showToast({ title: '配对成功', icon: 'success' });
 

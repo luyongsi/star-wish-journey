@@ -2,7 +2,7 @@
 .settings-page {
   min-height: 100vh;
   padding: 24rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
 }
 
 .settings-group {
@@ -101,12 +101,12 @@
   color: #636E72;
   line-height: 1.6;
   display: block;
-  margin-bottom: 32rpx;
 }
 
 .modal-actions {
   display: flex;
   gap: 24rpx;
+  margin-top: 32rpx;
 }
 
 .modal-actions .btn-secondary,

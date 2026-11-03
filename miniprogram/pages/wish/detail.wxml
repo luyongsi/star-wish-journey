@@ -1,6 +1,16 @@
 <!-- pages/wish/detail.wxml -->
-<view class="detail-page" wx:if="{{wish}}">
-  <!-- 愿望头部 -->
+<view class="detail-page" wx:if="{{wish && !isEditing}}">
+  <!-- B1 封面区：无封面不渲染 -->
+  <view class="cover-wrap" wx:if="{{displayCoverUrl}}">
+    <image
+      class="cover-image"
+      src="{{displayCoverUrl}}"
+      mode="widthFix"
+      bindtap="handlePreviewCover"
+    />
+  </view>
+
+  <!-- B2 标题区 -->
   <view class="detail-header">
     <view class="detail-icon {{statusClass}}-bg">
       <text class="icon-emoji">{{icon}}</text>
@@ -11,7 +21,9 @@
         <view class="status-badge {{statusClass}}">
           <text>{{statusLabel}}</text>
         </view>
-        <text class="detail-time">{{relativeTime}}</text>
+        <view class="category-tag">
+          <text>{{icon}} {{categoryLabel}}</text>
+        </view>
       </view>
     </view>
     <view class="favorite-btn" bindtap="handleToggleFavorite">
@@ -19,30 +31,126 @@
     </view>
   </view>
 
-  <!-- 描述 -->
-  <view class="detail-section" wx:if="{{wish.description && !isEditing}}">
-    <text class="section-label">描述</text>
-    <view class="section-content">
-      <text>{{wish.description}}</text>
+  <!-- B3 计划信息 -->
+  <view class="detail-section plan-section">
+    <view class="plan-row">
+      <text class="section-label plan-label">计划日期</text>
+
+      <!-- 可编辑：picker 直接包住点击区域 -->
+      <picker
+        wx:if="{{plannedEditable}}"
+        mode="date"
+        value="{{plannedValue || todayKey}}"
+        bindchange="handlePlannedDateChange"
+      >
+        <view class="plan-value {{plannedOverdue ? 'plan-overdue' : ''}}">
+          <text wx:if="{{plannedFullText}}">{{plannedFullText}}</text>
+          <text wx:else class="plan-empty">未计划</text>
+          <text class="plan-hint {{plannedOverdue ? 'plan-overdue' : ''}}" wx:if="{{plannedHint}}">{{plannedHint}}</text>
+          <text class="plan-arrow">›</text>
+        </view>
+      </picker>
+
+      <!-- 已完成：只读 -->
+      <view wx:else class="plan-value {{plannedOverdue ? 'plan-overdue' : ''}}">
+        <text wx:if="{{plannedFullText}}">{{plannedFullText}}</text>
+        <text wx:else class="plan-empty">未计划</text>
+        <text class="plan-hint {{plannedOverdue ? 'plan-overdue' : ''}}" wx:if="{{plannedHint}}">{{plannedHint}}</text>
+      </view>
+    </view>
+
+    <!-- 快捷日期 -->
+    <view class="quick-dates" wx:if="{{plannedEditable}}">
+      <text class="quick-label">快捷</text>
+      <view
+        class="quick-chip"
+        wx:for="{{quickOptions}}"
+        wx:key="value"
+        data-value="{{item.value}}"
+        bindtap="handleQuickDate"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="plan-meta">
+      <text class="meta-text">👤 {{createdByText}} 添加 · {{relativeTime}}</text>
     </view>
   </view>
 
-  <!-- 完成信息 -->
+  <!-- B4 描述：无描述不渲染 -->
+  <view class="detail-section" wx:if="{{wish.description}}">
+    <text class="section-label">描述</text>
+    <view class="section-content">
+      <text class="desc-text">{{wish.description}}</text>
+    </view>
+  </view>
+
+  <!-- 完成时间 -->
   <view class="detail-section" wx:if="{{wish.status === 'completed'}}">
     <text class="section-label">完成时间</text>
     <view class="section-content">
-      <text>🎉 {{completedDate}} 完成</text>
-    </view>
-    <!-- 打卡入口 -->
-    <view class="checkin-entry" wx:if="{{checkIn}}" bindtap="handleViewCheckIn">
-      <text class="checkin-entry-icon">📸</text>
-      <text class="checkin-entry-text">查看打卡记录</text>
-      <text class="checkin-entry-arrow">›</text>
+      <text>🎉 {{completedDate || '已完成'}} 完成</text>
     </view>
   </view>
 
-  <!-- 操作按钮 -->
-  <view class="detail-actions" wx:if="{{!isEditing}}">
+  <!-- B5 打卡记录区：仅已完成愿望渲染 -->
+  <view class="detail-section records-section" wx:if="{{wish.status === 'completed'}}">
+    <view class="records-header">
+      <text class="section-label records-label">打卡记录</text>
+      <text class="records-count" wx:if="{{recordCount > 0}}">{{recordCount}} 条</text>
+    </view>
+
+    <view class="record-list" wx:if="{{records.length > 0}}">
+      <view
+        class="record-item"
+        wx:for="{{records}}"
+        wx:for-index="recordIndex"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="handleRecordTap"
+      >
+        <view class="record-head">
+          <text class="record-time">{{item.timeText}}</text>
+          <text class="record-by">{{item.byText}}</text>
+        </view>
+        <text class="record-note" wx:if="{{item.note}}">{{item.note}}</text>
+        <view class="record-media" wx:if="{{item.mediaView.length > 0}}">
+          <view
+            class="record-media-item"
+            wx:for="{{item.mediaView}}"
+            wx:for-item="media"
+            wx:for-index="mediaIndex"
+            wx:key="fileId"
+            data-record-index="{{recordIndex}}"
+            data-media-index="{{mediaIndex}}"
+            catchtap="handlePreviewRecordMedia"
+          >
+            <image
+              class="record-media-thumb"
+              src="{{media.thumbSrc}}"
+              mode="aspectFill"
+              wx:if="{{media.thumbSrc}}"
+            />
+            <view class="record-media-placeholder" wx:else>
+              <text>{{media.type === 'video' ? '🎬' : '🖼'}}</text>
+            </view>
+            <view class="video-badge" wx:if="{{media.type === 'video'}}">
+              <text class="video-icon">▶</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无记录时不渲染列表，仅保留追加入口 -->
+    <view class="append-btn" bindtap="handleOpenAppend">
+      <text>＋ 追加一条记录</text>
+    </view>
+  </view>
+
+  <!-- B6 操作区 -->
+  <view class="detail-actions">
     <view class="btn-secondary" bindtap="handleStartEdit">
       <text>✏️ 编辑</text>
     </view>
@@ -50,9 +158,11 @@
       <text>🗑 删除</text>
     </view>
   </view>
+</view>
 
-  <!-- 编辑模式 -->
-  <view class="edit-form" wx:if="{{isEditing}}">
+<!-- B7 编辑态 -->
+<view class="detail-page" wx:if="{{wish && isEditing}}">
+  <view class="edit-form">
     <view class="form-item">
       <text class="form-label">标题</text>
       <input
@@ -63,6 +173,7 @@
         bindinput="handleTitleInput"
       />
     </view>
+
     <view class="form-item">
       <text class="form-label">分类</text>
       <view class="category-select">
@@ -78,16 +189,60 @@
         </view>
       </view>
     </view>
+
     <view class="form-item">
       <text class="form-label">描述</text>
       <textarea
         class="form-textarea"
-        placeholder="描述（可选）"
+        placeholder="描述（可选，最多200字）"
         maxlength="200"
         value="{{editForm.description}}"
         bindinput="handleDescInput"
       />
+      <text class="form-counter">{{editDescLength}}/200</text>
     </view>
+
+    <view class="form-item">
+      <text class="form-label">计划日期</text>
+      <view class="form-date-row" wx:if="{{wish.status !== 'completed'}}">
+        <picker mode="date" value="{{editForm.plannedDate || todayKey}}" bindchange="handleEditPlannedDateChange">
+          <view class="form-date-value">
+            <text wx:if="{{editForm.plannedDate}}">{{editForm.plannedDate}}</text>
+            <text wx:else class="form-date-empty">未计划</text>
+          </view>
+        </picker>
+        <view class="form-date-clear" wx:if="{{editForm.plannedDate}}" bindtap="handleClearEditPlannedDate">
+          <text>清除</text>
+        </view>
+      </view>
+      <view class="form-date-row" wx:else>
+        <view class="form-date-value form-date-readonly">
+          <text wx:if="{{plannedFullText}}">{{plannedFullText}}</text>
+          <text wx:else class="form-date-empty">未计划</text>
+        </view>
+        <text class="form-date-tip">已完成不可修改</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">封面图</text>
+      <view class="cover-editor">
+        <view class="cover-editor-preview" wx:if="{{coverPreview}}">
+          <image class="cover-editor-image" src="{{coverPreview}}" mode="aspectFill" />
+          <view class="cover-remove" bindtap="handleRemoveCover">
+            <text>×</text>
+          </view>
+        </view>
+        <view class="cover-editor-add" wx:else bindtap="handleChooseCover">
+          <text class="cover-add-icon">＋</text>
+          <text class="cover-add-text">添加封面</text>
+        </view>
+      </view>
+      <view class="cover-replace" wx:if="{{coverPreview}}" bindtap="handleChooseCover">
+        <text>更换封面</text>
+      </view>
+    </view>
+
     <view class="edit-actions">
       <view class="btn-secondary" bindtap="handleCancelEdit">
         <text>取消</text>
@@ -99,7 +254,45 @@
   </view>
 </view>
 
+<!-- B5 追加记录抽屉 -->
+<view class="overlay" wx:if="{{showAppendPanel}}" bindtap="handleCloseAppend">
+  <view class="bottom-panel" catchtap="handleStopPropagation">
+    <view class="panel-header">
+      <text class="panel-title">追加一条记录</text>
+      <text class="panel-close" bindtap="handleCloseAppend">×</text>
+    </view>
+    <view class="panel-body">
+      <view class="panel-wish-title">
+        <text>{{wish.title}}</text>
+      </view>
+
+      <text class="panel-label">添加照片/视频</text>
+      <media-uploader
+        maxCount="9"
+        mediaList="{{appendMediaList}}"
+        bind:change="handleAppendMediaChange"
+      />
+
+      <text class="panel-label">记录内容</text>
+      <textarea
+        class="panel-textarea"
+        placeholder="记录这个美好时刻..."
+        maxlength="500"
+        value="{{appendNote}}"
+        bindinput="handleAppendNoteInput"
+      />
+
+      <view
+        class="btn-primary {{appending ? 'btn-disabled' : ''}}"
+        bindtap="handleSubmitAppend"
+      >
+        <text>{{appending ? appendUploadText : '提交'}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+
 <!-- 加载中 -->
-<view class="loading" wx:if="{{loading}}">
+<view class="loading" wx:if="{{loading && !wish}}">
   <text>加载中...</text>
 </view>

@@ -1,69 +1,212 @@
 <!-- pages/memory/index.wxml -->
 <view class="memory-page">
-  <!-- 时间线 -->
-  <view class="timeline" wx:if="{{groups.length > 0}}">
-    <view class="timeline-group" wx:for="{{groups}}" wx:for-item="group" wx:key="month">
-      <!-- 月份标题 -->
-      <view class="month-header">
-        <view class="month-dot"></view>
-        <text class="month-text">{{group.month}}</text>
-      </view>
+  <!-- 分段控件 -->
+  <view class="seg">
+    <view
+      class="seg-item {{activeTab === 'timeline' ? 'seg-item-on' : ''}}"
+      data-tab="timeline"
+      bindtap="handleSwitchTab"
+    >
+      <text>时间线</text>
+    </view>
+    <view
+      class="seg-item {{activeTab === 'achievements' ? 'seg-item-on' : ''}}"
+      data-tab="achievements"
+      bindtap="handleSwitchTab"
+    >
+      <text>成就</text>
+    </view>
+    <view
+      class="seg-item {{activeTab === 'footprints' ? 'seg-item-on' : ''}}"
+      data-tab="footprints"
+      bindtap="handleSwitchTab"
+    >
+      <text>足迹</text>
+    </view>
+  </view>
 
-      <!-- 月份下的记录 -->
-      <view class="month-items">
-        <view
-          class="memory-item"
-          wx:for="{{group.items}}"
-          wx:for-item="item"
-          wx:key="_id"
-          data-id="{{item._id}}"
-          bindtap="handleViewDetail"
-        >
-          <!-- 缩略图 -->
-          <view class="memory-thumb">
-            <image
-              wx:if="{{item.thumbUrl}}"
-              class="thumb-img"
-              src="{{item.thumbUrl}}"
-              mode="aspectFill"
-              lazy-load
-            />
-            <view wx:else class="thumb-placeholder">
-              <text>{{item.wishCategory === 'food' ? '🍜' : item.wishCategory === 'travel' ? '✈️' : item.wishCategory === 'sport' ? '⚽' : item.wishCategory === 'movie' ? '🎬' : item.wishCategory === 'home' ? '🏠' : '💝'}}</text>
+  <!-- ==================== 时间线 ==================== -->
+  <block wx:if="{{activeTab === 'timeline'}}">
+    <view class="timeline" wx:if="{{groups.length > 0}}">
+      <view class="timeline-group" wx:for="{{groups}}" wx:for-item="group" wx:key="month">
+        <!-- 月份标题 -->
+        <view class="month-header">
+          <view class="month-dot"></view>
+          <text class="month-text">{{group.month}}</text>
+        </view>
+
+        <!-- 月份下的打卡记录 -->
+        <view class="month-items">
+          <view
+            class="memory-item"
+            wx:for="{{group.items}}"
+            wx:for-item="item"
+            wx:key="_id"
+            data-id="{{item._id}}"
+            bindtap="handleViewDetail"
+          >
+            <!-- 封面缩略图 -->
+            <view class="memory-thumb">
+              <image
+                wx:if="{{item.thumbUrl}}"
+                class="thumb-img"
+                src="{{item.thumbUrl}}"
+                mode="aspectFill"
+                lazy-load
+              />
+              <view wx:else class="thumb-placeholder">
+                <text>{{item.categoryIcon}}</text>
+              </view>
             </view>
-          </view>
 
-          <!-- 内容 -->
-          <view class="memory-content">
-            <text class="memory-title">{{item.wishTitle || '愿望打卡'}}</text>
-            <text class="memory-note" wx:if="{{item.note}}">{{item.note}}</text>
-            <text class="memory-date">{{item.dateStr}}</text>
-          </view>
+            <!-- 内容 -->
+            <view class="memory-content">
+              <text class="memory-title">{{item.wishTitle || '愿望打卡'}}</text>
+              <view class="memory-meta">
+                <text class="memory-date">{{item.dateStr}}</text>
+                <text class="memory-dot">·</text>
+                <text class="memory-media">{{item.mediaText}}</text>
+              </view>
+              <text class="memory-note" wx:if="{{item.note}}">{{item.note}}</text>
+            </view>
 
-          <text class="memory-arrow">›</text>
+            <text class="memory-arrow">›</text>
+          </view>
         </view>
       </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{hasMore}}" bindtap="handleLoadMore">
+        <text>{{loadingMore ? '加载中...' : '加载更多'}}</text>
+      </view>
+      <view class="no-more" wx:else>
+        <text>没有更多了</text>
+      </view>
     </view>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore}}" bindtap="handleLoadMore">
-      <text>{{loadingMore ? '加载中...' : '加载更多'}}</text>
-    </view>
-    <view class="no-more" wx:else>
-      <text>没有更多了</text>
-    </view>
-  </view>
+    <!-- 空状态 -->
+    <empty-state
+      wx:if="{{timelineLoaded && groups.length === 0}}"
+      icon="📖"
+      text="还没有回忆"
+      subText="完成愿望打卡后，这里会记录你们的美好时光"
+    />
 
-  <!-- 空状态 -->
-  <empty-state
-    wx:if="{{!loading && groups.length === 0}}"
-    icon="📖"
-    text="还没有回忆"
-    subText="完成愿望打卡后，这里会记录你们的美好时光"
-  />
+    <!-- 加载失败 -->
+    <view class="retry" wx:if="{{timelineError && !loading}}" bindtap="fetchTimeline">
+      <text>加载失败，点击重试</text>
+    </view>
 
-  <!-- 加载中 -->
-  <view class="loading" wx:if="{{loading}}">
-    <text>加载中...</text>
-  </view>
+    <!-- 加载中 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </block>
+
+  <!-- ==================== 成就 ==================== -->
+  <block wx:if="{{activeTab === 'achievements'}}">
+    <!-- E2 年度报告入口 -->
+    <view class="report-entry" bindtap="handleGoReport">
+      <view class="report-entry-main">
+        <text class="report-entry-title">我们的 {{currentYear}}</text>
+        <text class="report-entry-summary" wx:if="{{achLoaded}}">已完成 {{wishCompleted}} 个愿望 · {{checkInTotal}} 次打卡</text>
+        <text class="report-entry-summary" wx:else>回顾你们这一年的点点滴滴</text>
+      </view>
+      <text class="report-entry-link">查看年度报告 ›</text>
+    </view>
+
+    <!-- E3 成就墙 -->
+    <view class="ach-head">
+      <text class="ach-head-title">成就墙</text>
+      <text class="ach-head-count">已点亮 {{achievedCount}}/{{achTotal}}</text>
+    </view>
+
+    <view class="ach-grid" wx:if="{{achievements.length > 0}}">
+      <view
+        class="ach-item {{item.achieved ? 'ach-item-done' : 'ach-item-locked'}}"
+        wx:for="{{achievements}}"
+        wx:key="id"
+        data-index="{{index}}"
+        bindtap="handleAchievementTap"
+      >
+        <text class="ach-icon {{item.achieved ? '' : 'ach-icon-locked'}}">{{item.icon}}</text>
+        <text class="ach-name {{item.achieved ? '' : 'ach-name-locked'}}">{{item.name}}</text>
+        <text class="ach-progress" wx:if="{{!item.achieved}}">{{item.progressText}}</text>
+      </view>
+    </view>
+
+    <view class="loading" wx:if="{{achLoading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 加载失败 -->
+    <view class="retry" wx:if="{{achError && !achLoading}}" bindtap="fetchAchievements">
+      <text>加载失败，点击重试</text>
+    </view>
+  </block>
+
+  <!-- ==================== 足迹 ==================== -->
+  <block wx:if="{{activeTab === 'footprints'}}">
+    <block wx:if="{{fpLoaded && totalPoints > 0}}">
+      <!-- E4 地图 -->
+      <view class="map-wrap">
+        <map
+          id="footprintMap"
+          class="footprint-map"
+          latitude="{{mapView.center.latitude}}"
+          longitude="{{mapView.center.longitude}}"
+          scale="{{mapView.scale}}"
+          markers="{{markers}}"
+          bindmarkertap="handleMarkerTap"
+        ></map>
+        <view class="map-reset" bindtap="handleResetView">
+          <text>回到全国</text>
+        </view>
+      </view>
+
+      <!-- E5 城市聚合列表 -->
+      <view class="city-section">
+        <view class="city-summary">
+          <text>一起去过 {{totalCities}} 个城市 · 共 {{totalPoints}} 个打卡点</text>
+        </view>
+
+        <view
+          class="city-item {{activeCity === item.city ? 'city-item-active' : ''}}"
+          wx:for="{{cities}}"
+          wx:key="city"
+          data-city="{{item.city}}"
+          bindtap="handleCityTap"
+        >
+          <view class="city-left">
+            <text class="city-icon">📍</text>
+            <view class="city-info">
+              <text class="city-name">{{item.city}}</text>
+              <text class="city-last">最近 {{item.lastAtStr}}</text>
+            </view>
+          </view>
+          <view class="city-right">
+            <text class="city-count">{{item.count}} 次</text>
+            <text class="city-arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空态 -->
+    <empty-state
+      wx:if="{{fpLoaded && totalPoints === 0}}"
+      icon="🗺️"
+      text="还没有位置记录"
+      subText="打卡时添加位置，就能在这里看到你们走过的地方"
+    />
+
+    <view class="loading" wx:if="{{fpLoading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 加载失败 -->
+    <view class="retry" wx:if="{{fpError && !fpLoading}}" bindtap="fetchFootprints">
+      <text>加载失败，点击重试</text>
+    </view>
+  </block>
 </view>

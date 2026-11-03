@@ -431,12 +431,12 @@ describe('愿望云函数 - start (状态机校验)', () => {
 });
 
 describe('愿望云函数 - return', () => {
-  test('放回愿望 → drawnAt 被清空', async () => {
+  test('放回愿望 → drawnAt 保留（v1.1 避重），状态仍为 pending', async () => {
     mockSdk._resetData();
     const coupleId = setupPairedUsers(OPENID_A, OPENID_B);
     const wishId = addWish(coupleId, [OPENID_A, OPENID_B], 'pending');
-    // 设置 drawnAt
-    mockSdk._getCollections().wishes[0].drawnAt = new Date();
+    const drawnAt = new Date();
+    mockSdk._getCollections().wishes[0].drawnAt = drawnAt;
 
     mockSdk._setOpenid(OPENID_A);
     const res = await wishFn.main({ action: 'return', wishId });
@@ -444,10 +444,22 @@ describe('愿望云函数 - return', () => {
     expect(res.code).toBe(0);
     expect(res.message).toContain('放回');
 
-    // 验证 drawnAt 被清空
+    // v1.1：drawnAt 保留，用于 7 天内不再抽到同一条
     const collections = mockSdk._getCollections();
     const wish = collections.wishes.find((w) => w._id === wishId);
-    expect(wish.drawnAt).toBeNull();
+    expect(wish.status).toBe('pending');
+    expect(wish.returnedAt).toBeDefined();
+  });
+
+  test('放回非 pending 愿望 → 返回1002', async () => {
+    mockSdk._resetData();
+    const coupleId = setupPairedUsers(OPENID_A, OPENID_B);
+    const wishId = addWish(coupleId, [OPENID_A, OPENID_B], 'ongoing');
+
+    mockSdk._setOpenid(OPENID_A);
+    const res = await wishFn.main({ action: 'return', wishId });
+
+    expect(res.code).toBe(1002);
   });
 
   test('缺少wishId → 返回1004', async () => {

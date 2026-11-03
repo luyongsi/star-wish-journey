@@ -1,6 +1,5 @@
 // pages/profile/settings.js — 设置页
 const pairService = require('../../services/pair');
-const store = require('../../utils/store');
 
 Page({
   data: {
@@ -31,10 +30,9 @@ Page({
 
     pairService.unbind()
       .then(() => {
-        // 清空全局状态
-        store.setCouple(null);
+        // 清空全局状态（store + globalData）
         const app = getApp();
-        app.globalData.coupleInfo = null;
+        app.updateCouple(null);
 
         wx.showToast({ title: '已解除贴贴', icon: 'success' });
 
@@ -54,7 +52,7 @@ Page({
   handleAbout() {
     wx.showModal({
       title: '关于心愿拾光',
-      content: '心愿拾光 v1.0.0\n\n记录你们每一个甜蜜心愿，一起抽取、打卡、回忆。\n\n用爱点亮每一个心愿 ✨',
+      content: '心愿拾光 v1.1.0\n\n记录你们每一个甜蜜心愿，一起抽取、打卡、回忆。\n\n用爱点亮每一个心愿 ✨',
       showCancel: false,
       confirmText: '知道了',
       confirmColor: '#FF6B9D',

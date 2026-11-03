@@ -52,15 +52,42 @@ Component({
             };
           });
 
-          // 校验视频大小
-          for (const media of newMedia) {
-            if (media.type === 'video' && media.size > mediaLimits.maxVideoSize) {
-              wx.showToast({ title: '视频不能超过50MB', icon: 'none' });
-              return;
+          // 超过云端硬上限（50MB）的单个文件跳过；介于压缩阈值与上限之间的会在上传前自动压缩
+          const accepted = [];
+          const tooLarge = [];
+          newMedia.forEach((media) => {
+            if (media.size > mediaLimits.maxUploadSize) {
+              tooLarge.push(media);
+            } else {
+              accepted.push(media);
             }
+          });
+
+          // 视频时长二次校验（部分机型 chooseMedia 的 maxDuration 不严格生效）
+          const maxDuration = mediaLimits.maxVideoDuration;
+          const tooLong = accepted.filter(
+            (m) => m.type === 'video' && m.duration > maxDuration
+          );
+          const valid = accepted.filter((m) => tooLong.indexOf(m) === -1);
+
+          if (tooLarge.length > 0) {
+            const limitMB = Math.round(mediaLimits.maxUploadSize / 1024 / 1024);
+            wx.showToast({
+              title: `${tooLarge.length} 个文件超过 ${limitMB}MB，已跳过`,
+              icon: 'none',
+              duration: 2500,
+            });
+          } else if (tooLong.length > 0) {
+            wx.showToast({
+              title: `视频不能超过 ${maxDuration} 秒，已跳过`,
+              icon: 'none',
+              duration: 2500,
+            });
           }
 
-          const updated = [...this.data.localMedia, ...newMedia];
+          if (valid.length === 0) return;
+
+          const updated = [...this.data.localMedia, ...valid];
           this.setData({ localMedia: updated });
           this.triggerEvent('change', { mediaList: updated });
         },

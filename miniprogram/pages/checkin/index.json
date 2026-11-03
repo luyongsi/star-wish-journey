@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "checkin-card": "/components/checkin-card/checkin-card",
     "media-uploader": "/components/media-uploader/media-uploader",
     "empty-state": "/components/empty-state/empty-state"
   }

@@ -21,7 +21,36 @@ function getMemoryDetail(checkInId) {
   return call(cloudFunctions.memory, { action: 'detail', checkInId }, { loading: false });
 }
 
+/**
+ * 足迹：带位置的打卡点 + 城市聚合
+ * @returns {Promise<{ markers: Array, cities: Array, totalPoints: number, totalCities: number }>}
+ */
+function getFootprints() {
+  return call(cloudFunctions.memory, { action: 'footprints' }, { loading: false });
+}
+
+/**
+ * 成就墙
+ * @param {boolean} [refresh] - 是否强制重算（打卡/建愿望后传 true）
+ * @returns {Promise<{ list: Array, achievedCount: number, total: number }>}
+ */
+function getAchievements(refresh) {
+  return call(cloudFunctions.memory, { action: 'achievements', refresh: !!refresh }, { loading: false });
+}
+
+/**
+ * 年度报告
+ * @param {number} [year]
+ * @returns {Promise<Object>}
+ */
+function getAnnualReport(year) {
+  return call(cloudFunctions.memory, { action: 'annualReport', year }, { loading: false });
+}
+
 module.exports = {
   getTimeline,
   getMemoryDetail,
+  getFootprints,
+  getAchievements,
+  getAnnualReport,
 };

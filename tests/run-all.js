@@ -14,6 +14,12 @@ async function main() {
     { name: 'Cloud Functions > Pair', path: './cloud-functions/pair.test.js' },
     { name: 'Cloud Functions > Wish', path: './cloud-functions/wish.test.js' },
     { name: 'Cloud Functions > CheckIn', path: './cloud-functions/checkin.test.js' },
+    { name: 'Utils > Date', path: './utils/date.test.js' },
+    { name: 'Utils > Map', path: './utils/map.test.js' },
+    { name: 'Utils > Location', path: './utils/location.test.js' },
+    { name: 'Utils > Badge', path: './utils/badge.test.js' },
+    { name: 'Data > Inspiration', path: './data/inspiration.test.js' },
+    { name: 'Cloud Functions > v1.1', path: './cloud-functions/v11.test.js' },
   ];
 
   let totalPassed = 0;

@@ -12,6 +12,15 @@ function createWish(params) {
 }
 
 /**
+ * 查询单个愿望详情
+ * @param {string} wishId
+ * @returns {Promise<{ wish: Object }>}
+ */
+function getWishDetail(wishId) {
+  return call(cloudFunctions.wish, { action: 'detail', wishId }, { loading: false });
+}
+
+/**
  * 更新愿望
  * @param {string} wishId
  * @param {Object} params - { title?, description?, category?, isFavorite? }
@@ -41,19 +50,57 @@ function listWishes(filters = {}) {
 
 /**
  * 抽取愿望
+ * @param {Object} [options] - { category?, excludeDays? }
  * @returns {Promise<{ wish: Object|null }>}
  */
-function drawWish() {
-  return call(cloudFunctions.wish, { action: 'draw' }, { loadingText: '抽取中...' });
+function drawWish(options = {}) {
+  return call(cloudFunctions.wish, { action: 'draw', ...options }, { loadingText: '抽取中...' });
+}
+
+/**
+ * 获取今日愿望（每天每对情侣同一个）
+ * @returns {Promise<Object>}
+ */
+function getTodayWish() {
+  return call(cloudFunctions.wish, { action: 'today' }, { loading: false });
+}
+
+/**
+ * 今日愿望操作
+ * @param {'select'|'switch'|'hide'} op
+ * @returns {Promise<Object>}
+ */
+function todayWishAction(op) {
+  const loadingText = op === 'switch' ? '换一个...' : '';
+  return call(
+    cloudFunctions.wish,
+    { action: 'todayAction', op },
+    op === 'hide' ? { loading: false } : { loadingText }
+  );
+}
+
+/**
+ * 设置计划日期（待抽取的愿望设置后转为进行中）
+ * @param {string} wishId
+ * @param {string|null} plannedDate - 'YYYY-MM-DD'
+ * @returns {Promise<Object>}
+ */
+function setPlannedDate(wishId, plannedDate) {
+  return call(cloudFunctions.wish, { action: 'update', wishId, plannedDate }, { loading: false });
 }
 
 /**
  * 开始执行愿望（pending → ongoing）
  * @param {string} wishId
+ * @param {string|null} [plannedDate] - 'YYYY-MM-DD'，可选，同一次调用内写入
  * @returns {Promise<Object>} 更新后的愿望
  */
-function startWish(wishId) {
-  return call(cloudFunctions.wish, { action: 'start', wishId }, { loadingText: '开始执行...' });
+function startWish(wishId, plannedDate) {
+  const data = { action: 'start', wishId };
+  if (plannedDate !== undefined) {
+    data.plannedDate = plannedDate;
+  }
+  return call(cloudFunctions.wish, data, { loadingText: '开始执行...' });
 }
 
 /**
@@ -67,10 +114,14 @@ function returnWish(wishId) {
 
 module.exports = {
   createWish,
+  getWishDetail,
   updateWish,
   deleteWish,
   listWishes,
   drawWish,
+  getTodayWish,
+  todayWishAction,
+  setPlannedDate,
   startWish,
   returnWish,
 };

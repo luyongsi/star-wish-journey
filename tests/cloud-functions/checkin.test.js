@@ -167,7 +167,7 @@ describe('打卡云函数 - create', () => {
     expect(res.code).toBe(1004);
   });
 
-  test('空mediaList → 返回1004', async () => {
+  test('空mediaList + 无备注 → 成功（v1.1 媒体选填）', async () => {
     mockSdk._resetData();
     const coupleId = setupPairedUsers(OPENID_A, OPENID_B);
     const wishId = addWish(coupleId, [OPENID_A, OPENID_B], 'ongoing');
@@ -179,11 +179,12 @@ describe('打卡云函数 - create', () => {
       mediaList: [],
     });
 
-    expect(res.code).toBe(1004);
-    expect(res.message).toContain('图片或视频');
+    expect(res.code).toBe(0);
+    expect(res.data.checkIn.mediaList).toHaveLength(0);
+    expect(res.data.wish.status).toBe('completed');
   });
 
-  test('mediaList为undefined → 返回1004', async () => {
+  test('mediaList为undefined → 成功（v1.1 媒体选填）', async () => {
     mockSdk._resetData();
     const coupleId = setupPairedUsers(OPENID_A, OPENID_B);
     const wishId = addWish(coupleId, [OPENID_A, OPENID_B], 'ongoing');
@@ -195,7 +196,21 @@ describe('打卡云函数 - create', () => {
       note: '',
     });
 
+    expect(res.code).toBe(0);
+    expect(res.data.checkIn.mediaList).toHaveLength(0);
+  });
+
+  test('媒体超过9个 → 返回1004', async () => {
+    mockSdk._resetData();
+    const coupleId = setupPairedUsers(OPENID_A, OPENID_B);
+    const wishId = addWish(coupleId, [OPENID_A, OPENID_B], 'ongoing');
+    const mediaList = new Array(10).fill(0).map((_, i) => ({ fileId: 'f' + i, type: 'image' }));
+
+    mockSdk._setOpenid(OPENID_A);
+    const res = await checkinFn.main({ action: 'create', wishId, mediaList });
+
     expect(res.code).toBe(1004);
+    expect(res.message).toContain('最多');
   });
 
   test('备注超500字 → 返回1004', async () => {
@@ -270,9 +285,11 @@ describe('打卡云函数 - list', () => {
 
     expect(res.code).toBe(0);
     expect(res.data.ongoing).toHaveLength(1);
-    expect(res.data.ongoing[0].title).toBe('进行中愿望');
+    expect(res.data.ongoing[0].wishTitle).toBe('进行中愿望');
     expect(res.data.completed).toHaveLength(1);
     expect(res.data.completed[0].wishTitle).toBe('已完成愿望');
+    expect(res.data.completed[0].recordCount).toBe(1);
+    expect(res.data.today).toBeDefined();
   });
 
   test('无数据 → 返回空数组', async () => {

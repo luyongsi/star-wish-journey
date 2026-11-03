@@ -22,8 +22,10 @@ Component({
     'checkIn': function (checkIn) {
       if (!checkIn || !checkIn._id) return;
       const mediaList = checkIn.mediaList || [];
-      const firstMedia = mediaList[0];
-      const thumbUrl = firstMedia ? (firstMedia.thumbUrl || firstMedia.url || firstMedia.fileId) : '';
+      // 优先用图片做缩略图；没有可用 URL 时留空，回落到图标占位（fileId 不能直接渲染）
+      const imageMedia = mediaList.find((m) => m.type !== 'video');
+      const firstMedia = imageMedia || mediaList[0] || null;
+      const thumbUrl = firstMedia ? (firstMedia.thumbUrl || firstMedia.url || '') : '';
 
       this.setData({
         thumbUrl,

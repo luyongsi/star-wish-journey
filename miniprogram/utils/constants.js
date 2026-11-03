@@ -80,6 +80,26 @@ const cloudFunctions = {
 const storageKeys = {
   userInfo: 'wishpool_user_info',
   coupleInfo: 'wishpool_couple_info',
+  poolView: 'wishpool_pool_view',
+  drawCondition: 'wishpool_draw_condition',
+  readAt: 'wishpool_read_at',
+};
+
+/**
+ * 抽取条件枚举
+ */
+const excludeDaysOptions = [
+  { key: 7, label: '7 天内' },
+  { key: 3, label: '3 天内' },
+  { key: 0, label: '不限' },
+];
+
+/**
+ * 愿望池视图枚举
+ */
+const poolView = {
+  list: 'list',
+  waterfall: 'waterfall',
 };
 
 module.exports = {
@@ -91,4 +111,6 @@ module.exports = {
   errorMsgs,
   cloudFunctions,
   storageKeys,
+  excludeDaysOptions,
+  poolView,
 };

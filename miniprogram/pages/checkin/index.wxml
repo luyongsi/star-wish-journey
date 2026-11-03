@@ -1,43 +1,86 @@
 <!-- pages/checkin/index.wxml -->
 <view class="checkin-page">
-  <!-- 待打卡区 -->
+  <!-- D1 今天要做 -->
+  <view class="section" wx:if="{{today.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">今天要做</text>
+      <text class="section-count">{{today.length}}</text>
+    </view>
+
+    <view class="card-list">
+      <view
+        class="task-card {{item.overdueDays > 0 ? 'task-overdue' : ''}}"
+        wx:for="{{today}}"
+        wx:key="_id"
+      >
+        <text class="task-icon">{{item.icon}}</text>
+        <view class="task-info">
+          <text class="task-title">{{item.wishTitle || item.title}}</text>
+          <text class="task-sub">{{item.subText}}</text>
+        </view>
+        <view class="btn-primary task-btn" data-wish="{{item}}" bindtap="handleOpenCheckIn">
+          <text>去完成</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- D2 待打卡 -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">⏳ 待打卡</text>
+      <text class="section-title">待打卡</text>
       <text class="section-count">{{ongoing.length}}</text>
     </view>
 
-    <view class="ongoing-list" wx:if="{{ongoing.length > 0}}">
-      <view class="ongoing-item" wx:for="{{ongoing}}" wx:key="_id">
-        <view class="ongoing-info">
-          <text class="ongoing-icon">{{item.icon}}</text>
-          <text class="ongoing-title">{{item.title}}</text>
+    <view class="card-list" wx:if="{{ongoing.length > 0}}">
+      <view class="task-card" wx:for="{{ongoing}}" wx:key="_id">
+        <text class="task-icon">{{item.icon}}</text>
+        <view class="task-info">
+          <text class="task-title">{{item.wishTitle || item.title}}</text>
+          <text class="task-sub">{{item.subText}}</text>
         </view>
-        <view class="btn-primary ongoing-btn" data-wish="{{item}}" bindtap="handleOpenCheckIn">
+        <view class="btn-secondary task-btn" data-wish="{{item}}" bindtap="handleOpenCheckIn">
           <text>去打卡</text>
         </view>
       </view>
     </view>
 
-    <view class="empty-inline" wx:else>
+    <view class="empty-inline" wx:elif="{{!loading}}">
       <text>暂无待打卡的愿望，去抽取一个吧～</text>
     </view>
   </view>
 
-  <!-- 已完成区 -->
+  <!-- D3 已完成 -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">✅ 已完成</text>
+      <text class="section-title">已完成</text>
       <text class="section-count">{{completed.length}}</text>
     </view>
 
-    <view class="completed-list" wx:if="{{completed.length > 0}}">
-      <checkin-card
+    <view class="card-list" wx:if="{{completed.length > 0}}">
+      <view
+        class="done-card"
         wx:for="{{completed}}"
         wx:key="_id"
-        checkIn="{{item}}"
-        bind:tap="handleViewCheckIn"
-      />
+        data-wish="{{item}}"
+        bindtap="handleViewWishDetail"
+      >
+        <view class="done-cover">
+          <image
+            wx:if="{{item.coverUrl}}"
+            class="done-cover-img"
+            src="{{item.coverUrl}}"
+            mode="aspectFill"
+            lazy-load
+          />
+          <text wx:else class="done-cover-icon">{{item.icon}}</text>
+        </view>
+        <view class="done-info">
+          <text class="done-title">{{item.wishTitle || item.title}}</text>
+          <text class="done-sub">{{item.subText}}</text>
+        </view>
+        <text class="done-arrow">›</text>
+      </view>
     </view>
 
     <empty-state
@@ -54,43 +97,68 @@
   </view>
 </view>
 
-<!-- 打卡操作面板 -->
-<view class="overlay" wx:if="{{showCheckInPanel}}" bindtap="handleCloseCheckIn">
+<!-- D4 完成抽屉 -->
+<view class="overlay" wx:if="{{showCheckInPanel}}" bindtap="handleClosePanel">
   <view class="bottom-panel" catchtap="handleStopPropagation">
     <view class="panel-header">
-      <text class="panel-title">完成打卡</text>
-      <text class="panel-close" bindtap="handleCloseCheckIn">×</text>
+      <text class="panel-title">这次感觉如何？</text>
+      <text class="panel-close" bindtap="handleClosePanel">×</text>
     </view>
+
     <view class="panel-body">
-      <!-- 愿望标题 -->
-      <view class="panel-wish-title">
-        <text>{{currentWish.title}}</text>
+      <!-- 愿望名 -->
+      <view class="panel-wish">
+        <text class="panel-wish-icon">{{currentIcon}}</text>
+        <text class="panel-wish-title">{{currentWish.title}}</text>
       </view>
 
-      <!-- 媒体上传 -->
-      <text class="panel-label">添加照片/视频</text>
+      <!-- 备注 -->
+      <text class="panel-label">备注（选填）</text>
+      <textarea
+        class="panel-textarea"
+        placeholder="记录这个美好时刻…"
+        placeholder-class="panel-placeholder"
+        maxlength="500"
+        value="{{note}}"
+        disabled="{{submitting}}"
+        bindinput="handleNoteInput"
+      />
+
+      <!-- 媒体 -->
+      <text class="panel-label">照片/视频（选填）</text>
       <media-uploader
         maxCount="9"
         mediaList="{{mediaList}}"
         bind:change="handleMediaChange"
       />
 
-      <!-- 文字备注 -->
-      <text class="panel-label">打卡备注</text>
-      <textarea
-        class="panel-textarea"
-        placeholder="记录这个美好时刻..."
-        maxlength="500"
-        value="{{note}}"
-        bindinput="handleNoteInput"
-      />
+      <!-- 位置 -->
+      <text class="panel-label">位置（选填）</text>
+      <view class="location-row" wx:if="{{!location}}">
+        <view class="location-add" bindtap="handleChooseLocation">
+          <text>📍 添加位置</text>
+        </view>
+      </view>
+      <view class="location-filled" wx:else>
+        <text class="location-icon">📍</text>
+        <text class="location-name">{{location.name}}</text>
+        <text class="location-remove" bindtap="handleRemoveLocation">移除</text>
+      </view>
 
-      <!-- 提交 -->
+      <!-- 主按钮 -->
       <view
-        class="btn-primary {{submitting ? 'btn-disabled' : ''}}"
+        class="btn-primary panel-submit {{submitting ? 'btn-disabled' : ''}}"
         bindtap="handleSubmitCheckIn"
       >
-        <text>{{submitting ? '提交中...' : '完成打卡'}}</text>
+        <text>{{submitting && !isSkipping ? uploadText : '✅ 标记完成'}}</text>
+      </view>
+
+      <!-- 次按钮 -->
+      <view
+        class="panel-skip {{submitting ? 'btn-disabled' : ''}}"
+        bindtap="handleSkip"
+      >
+        <text>{{submitting && isSkipping ? '处理中...' : '先跳过，直接完成'}}</text>
       </view>
     </view>
   </view>

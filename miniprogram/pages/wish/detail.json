@@ -1,5 +1,5 @@
 {
   "usingComponents": {
-    "empty-state": "/components/empty-state/empty-state"
+    "media-uploader": "/components/media-uploader/media-uploader"
   }
 }

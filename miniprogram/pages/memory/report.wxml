@@ -1,0 +1,96 @@
+<!-- pages/memory/report.wxml -->
+<view class="report-page" wx:if="{{report}}">
+  <!-- I1 头部 -->
+  <view class="report-header">
+    <text class="header-year">{{year}} 年度报告</text>
+    <text class="header-title">我们的一年</text>
+    <text class="header-sub">{{myName}} ❤️ {{partnerName}} · 在一起 {{anniversaryDays}} 天</text>
+  </view>
+
+  <!-- I2 核心数字 -->
+  <view class="card">
+    <view class="stat-row">
+      <view class="stat-item">
+        <text class="stat-value">{{wishCreated}}</text>
+        <text class="stat-label">新增愿望</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{wishCompleted}}</text>
+        <text class="stat-label">一起完成</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{checkInTotal}}</text>
+        <text class="stat-label">打卡记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- I3 月度分布 -->
+  <view class="card">
+    <text class="card-title">月度分布</text>
+    <view class="chart">
+      <view class="chart-bars">
+        <view class="chart-col" wx:for="{{monthlyBars}}" wx:key="month">
+          <view class="chart-bar-wrap">
+            <view
+              class="chart-bar {{item.isTop ? 'chart-bar-top' : ''}}"
+              style="height: {{item.pct}}%"
+            ></view>
+          </view>
+          <text class="chart-label">{{item.month}}</text>
+        </view>
+      </view>
+    </view>
+    <text class="chart-note" wx:if="{{topMonthText}}">{{topMonthText}}</text>
+    <text class="chart-note" wx:else>每月打卡次数</text>
+  </view>
+
+  <!-- I4 最爱的分类 -->
+  <view class="card row-between" wx:if="{{topCategoryName}}">
+    <text class="card-title-inline">最爱的分类</text>
+    <view class="category-value">
+      <text class="category-icon">{{topCategoryIcon}}</text>
+      <text class="category-name">{{topCategoryName}}</text>
+      <text class="category-count">（{{topCategoryCount}} 个）</text>
+    </view>
+  </view>
+
+  <!-- I5 年度最佳瞬间 -->
+  <view class="card moment-card" wx:if="{{bestMoment}}" bindtap="handleOpenMoment">
+    <text class="card-title">年度最佳瞬间</text>
+    <view class="moment-body">
+      <view class="moment-thumb">
+        <image wx:if="{{bestMomentThumb}}" class="moment-img" src="{{bestMomentThumb}}" mode="aspectFill" />
+        <view wx:else class="moment-placeholder">
+          <text>💝</text>
+        </view>
+      </view>
+      <view class="moment-info">
+        <text class="moment-title">{{bestMoment.wishTitle || '愿望打卡'}}</text>
+        <text class="moment-date">{{bestMomentDate}}</text>
+      </view>
+      <text class="moment-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- I6 保存为长图 -->
+  <view class="save-btn {{saving ? 'save-btn-disabled' : ''}}" bindtap="handleSaveImage">
+    <text>📷 保存为长图</text>
+  </view>
+  <text class="save-hint">生成后可直接发送给好友</text>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>
+
+<!-- 加载失败 -->
+<view class="loading" wx:if="{{!loading && !report}}">
+  <text>年度报告加载失败，请返回重试</text>
+</view>
+
+<!-- 离屏绘制用 canvas（2d） -->
+<canvas type="2d" id="reportCanvas" class="report-canvas"></canvas>

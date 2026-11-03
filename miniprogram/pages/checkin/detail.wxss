@@ -2,7 +2,7 @@
 .detail-page {
   min-height: 100vh;
   padding: 24rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
 }
 
 .wish-title-bar {
@@ -104,18 +104,28 @@
   margin-right: 8rpx;
 }
 
+.location-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
 .location-name {
   font-size: 28rpx;
   color: #2D3436;
 }
 
+.location-address {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #B2BEC3;
+  line-height: 1.4;
+}
+
 .time-text {
   font-size: 24rpx;
   color: #B2BEC3;
-}
-
-.action-section {
-  margin-top: 32rpx;
 }
 
 .loading {

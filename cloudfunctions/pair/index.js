@@ -69,13 +69,8 @@ async function _getPartnerInfo(couple) {
     }
   }
 
-  // 计算在一起天数
-  let anniversaryDays = 0;
-  if (couple.anniversary) {
-    const anniversary = new Date(couple.anniversary);
-    const now = new Date();
-    anniversaryDays = Math.floor((now - anniversary) / (24 * 60 * 60 * 1000));
-  }
+  // 计算在一起天数：起点当天计为第 1 天
+  const anniversaryDays = calcAnniversaryDays(couple.anniversary);
 
   return { partner, anniversaryDays };
 }
@@ -98,6 +93,10 @@ exports.main = async (event, context) => {
         return await _handleUnbind(openid);
       case 'info':
         return await _handleInfo(openid);
+      case 'updateProfile':
+        return await _handleUpdateProfile(openid, event);
+      case 'anniversary':
+        return await _handleAnniversary(openid, event);
       default:
         return { code: 1004, data: null, message: '未知的 action: ' + action };
     }
@@ -204,37 +203,56 @@ async function _handleJoin(openid, pairCode) {
   }
 
   // 事务更新：couple 状态变更 + userB coupleId
-  const transactionResult = await db.runTransaction(async (transaction) => {
-    // 更新 couple
-    const now = db.serverDate();
-    await transaction.collection('couples').doc(couple._id).update({
-      data: {
-        userB: openid,
-        status: 'active',
-        anniversary: now,
-        pairCode: '',
-        updatedAt: now,
-      },
+  // 并发安全：在事务内重新读取 couple，仅当仍是 pending 且 userB 为空时才允许绑定，
+  // 防止同一贴贴码被两人同时输入时产生双人绑定。
+  try {
+    const transactionResult = await db.runTransaction(async (transaction) => {
+      const coupleRef = transaction.collection('couples').doc(couple._id);
+      const latestQuery = await coupleRef.get();
+      const latest = latestQuery && latestQuery.data;
+
+      if (!latest || latest.status !== 'pending' || latest.userB) {
+        const err = new Error('贴贴码已被使用');
+        err.code = 1002;
+        throw err;
+      }
+
+      const now = db.serverDate();
+      await coupleRef.update({
+        data: {
+          userB: openid,
+          status: 'active',
+          anniversary: now,
+          boundAt: now,
+          pairCode: '',
+          updatedAt: now,
+        },
+      });
+
+      // 更新 userB 的 coupleId
+      await transaction.collection('users').doc(user._id).update({
+        data: { coupleId: couple._id, updatedAt: now },
+      });
+
+      return { coupleId: couple._id };
     });
 
-    // 更新 userB 的 coupleId
-    await transaction.collection('users').doc(user._id).update({
-      data: { coupleId: couple._id, updatedAt: now },
-    });
+    // 获取更新后的 couple
+    const updatedCoupleQuery = await couplesCollection.doc(transactionResult.coupleId).get();
+    const updatedCouple = updatedCoupleQuery.data;
+    updatedCouple.anniversary = updatedCouple.anniversary || new Date();
 
-    return { coupleId: couple._id };
-  });
-
-  // 获取更新后的 couple
-  const updatedCoupleQuery = await couplesCollection.doc(transactionResult.coupleId).get();
-  const updatedCouple = updatedCoupleQuery.data;
-  updatedCouple.anniversary = updatedCouple.anniversary || new Date();
-
-  return {
-    code: 0,
-    data: { couple: updatedCouple },
-    message: '贴贴成功',
-  };
+    return {
+      code: 0,
+      data: { couple: updatedCouple },
+      message: '贴贴成功',
+    };
+  } catch (err) {
+    if (err.code === 1002) {
+      return { code: 1002, data: null, message: '贴贴码已被使用' };
+    }
+    throw err;
+  }
 }
 
 /**
@@ -307,5 +325,113 @@ async function _handleInfo(openid) {
     message: 'ok',
   };
 }
+
+/**
+ * 计算在一起天数（起点当天算第 1 天）
+ * @param {Date|string|null} anniversary
+ * @returns {number}
+ */
+function calcAnniversaryDays(anniversary) {
+  if (!anniversary) return 0;
+  const start = new Date(anniversary);
+  if (isNaN(start.getTime())) return 0;
+  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.floor((today - startDay) / (24 * 60 * 60 * 1000));
+  return diff >= 0 ? diff + 1 : 0;
+}
+
+/**
+ * 解析 'YYYY-MM-DD'
+ * @param {string} value
+ * @returns {Date|null}
+ */
+function parseDateOnly(value) {
+  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || '').trim());
+  if (!matched) return null;
+  const d = new Date(
+    Number(matched[1]),
+    Number(matched[2]) - 1,
+    Number(matched[3]),
+    0,
+    0,
+    0,
+    0
+  );
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * 更新本人资料：昵称、头像
+ * 入参：{ nickName?, avatarUrl? }
+ */
+async function _handleUpdateProfile(openid, event) {
+  const userQuery = await usersCollection.where({ openid }).get();
+  if (userQuery.data.length === 0) {
+    return { code: 1003, data: null, message: '用户不存在' };
+  }
+  const user = userQuery.data[0];
+
+  const updateData = { updatedAt: db.serverDate() };
+
+  if (event.nickName !== undefined) {
+    const nickName = String(event.nickName || '').trim();
+    if (nickName.length > 20) {
+      return { code: 1004, data: null, message: '昵称不能超过20个字' };
+    }
+    updateData.nickName = nickName;
+  }
+
+  if (event.avatarUrl !== undefined) {
+    updateData.avatarUrl = String(event.avatarUrl || '');
+  }
+
+  await usersCollection.doc(user._id).update({ data: updateData });
+
+  return {
+    code: 0,
+    data: { ...user, ...updateData },
+    message: '资料已保存',
+  };
+}
+
+/**
+ * 修改在一起纪念日（couple 维度，双方共享）
+ * 入参：{ anniversary: 'YYYY-MM-DD' | null }
+ */
+async function _handleAnniversary(openid, event) {
+  const couple = await _checkCouple(openid);
+
+  let anniversary = null;
+  if (event.anniversary) {
+    anniversary = parseDateOnly(event.anniversary);
+    if (!anniversary) {
+      return { code: 1004, data: null, message: '纪念日格式不正确' };
+    }
+    const today = new Date();
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (anniversary.getTime() > todayMidnight.getTime()) {
+      return { code: 1004, data: null, message: '纪念日不能选择未来日期' };
+    }
+  } else {
+    // 清除时回落到贴贴成功日
+    anniversary = couple.boundAt || couple.anniversary || null;
+  }
+
+  await couplesCollection.doc(couple._id).update({
+    data: { anniversary, updatedAt: db.serverDate() },
+  });
+
+  return {
+    code: 0,
+    data: {
+      couple: { ...couple, anniversary },
+      anniversaryDays: calcAnniversaryDays(anniversary),
+    },
+    message: '纪念日已更新',
+  };
+}
+
 
 module.exports = exports;

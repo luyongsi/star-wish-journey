@@ -10,7 +10,7 @@ function _generateId() {
 }
 
 function _resetData() {
-  _collections = { users: [], couples: [], wishes: [], checkins: [] };
+  _collections = { users: [], couples: [], wishes: [], checkins: [], dailyDraws: [], achievements: [] };
   _docIdCounter = 1;
   _currentOpenid = 'test_openid';
 }
@@ -24,6 +24,21 @@ function _getCollections() {
 }
 
 /**
+ * 应用更新操作符（inc）
+ */
+function _applyUpdate(doc, data) {
+  const result = {};
+  Object.entries(data || {}).forEach(([key, value]) => {
+    if (value && typeof value === 'object' && value.__op === 'inc') {
+      result[key] = (doc[key] || 0) + value.value;
+    } else {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+
+/**
  * 判断文档是否匹配查询条件
  */
 function _matchesConditions(doc, conditions) {
@@ -33,6 +48,17 @@ function _matchesConditions(doc, conditions) {
       if (!value.values.includes(doc[key])) return false;
     } else if (value && typeof value === 'object' && value.__op === 'neq') {
       if (doc[key] === value.value) return false;
+    } else if (value && typeof value === 'object' && value.__op === 'inc') {
+      // inc 只用于更新，匹配阶段忽略
+      continue;
+    } else if (value && typeof value === 'object' && value.__op === 'gte') {
+      const docVal = doc[key] instanceof Date ? doc[key].getTime() : doc[key];
+      const cmp = value.value instanceof Date ? value.value.getTime() : value.value;
+      if (!(docVal >= cmp)) return false;
+    } else if (value && typeof value === 'object' && value.__op === 'lte') {
+      const docVal = doc[key] instanceof Date ? doc[key].getTime() : doc[key];
+      const cmp = value.value instanceof Date ? value.value.getTime() : value.value;
+      if (!(docVal <= cmp)) return false;
     } else {
       if (doc[key] !== value) return false;
     }
@@ -137,7 +163,7 @@ class Query {
     const matchingIds = new Set(matching.map((d) => d._id));
     _collections[this._collectionName] = (_collections[this._collectionName] || []).map((d) => {
       if (matchingIds.has(d._id)) {
-        return { ...d, ...data };
+        return { ...d, ..._applyUpdate(d, data) };
       }
       return d;
     });
@@ -164,7 +190,7 @@ class DocRef {
     const docs = _collections[this._collectionName] || [];
     const doc = docs.find((d) => d._id === this._id);
     if (doc) {
-      Object.assign(doc, data);
+      Object.assign(doc, _applyUpdate(doc, data));
     }
     return { stats: { updated: doc ? 1 : 0 } };
   }
@@ -218,6 +244,9 @@ class Database {
     return {
       in: (arr) => ({ __op: 'in', values: arr }),
       neq: (val) => ({ __op: 'neq', value: val }),
+      inc: (val) => ({ __op: 'inc', value: val }),
+      gte: (val) => ({ __op: 'gte', value: val }),
+      lte: (val) => ({ __op: 'lte', value: val }),
       eq: (val) => val,
     };
   }

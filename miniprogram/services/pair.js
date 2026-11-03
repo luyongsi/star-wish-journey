@@ -35,9 +35,29 @@ function getCoupleInfo() {
   return call(cloudFunctions.pair, { action: 'info' }, { loading: false });
 }
 
+/**
+ * 更新本人资料
+ * @param {Object} params - { nickName?, avatarUrl? }
+ * @returns {Promise<Object>}
+ */
+function updateProfile(params) {
+  return call(cloudFunctions.pair, { action: 'updateProfile', ...params }, { loadingText: '保存中...' });
+}
+
+/**
+ * 修改在一起纪念日
+ * @param {string|null} anniversary - 'YYYY-MM-DD'
+ * @returns {Promise<Object>}
+ */
+function updateAnniversary(anniversary) {
+  return call(cloudFunctions.pair, { action: 'anniversary', anniversary }, { loadingText: '保存中...' });
+}
+
 module.exports = {
   createPair,
   joinPair,
   unbind,
   getCoupleInfo,
+  updateProfile,
+  updateAnniversary,
 };

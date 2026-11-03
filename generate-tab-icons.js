@@ -191,11 +191,29 @@ function drawProfileIcon(color) {
   return pixels;
 }
 
+// 回忆: 书本图标
+function drawMemoryIcon(color) {
+  const pixels = createCanvas();
+  const bw = 4;
+  // 左页
+  fillRect(pixels, 12, 18, bw, 46, color);
+  fillRect(pixels, 12, 18, 58, bw, color);
+  fillRect(pixels, 12, 60, 58, bw, color);
+  // 右页
+  fillRect(pixels, 66, 18, bw, 46, color);
+  // 书脊
+  fillRect(pixels, 37, 18, 6, 46, color);
+  // 书签
+  fillRect(pixels, 52, 18, 6, 20, color);
+  return pixels;
+}
+
 // --- 生成所有图标 ---
 const icons = [
   { name: 'pool', draw: drawPoolIcon },
   { name: 'draw', draw: drawDrawIcon },
   { name: 'checkin', draw: drawCheckinIcon },
+  { name: 'memory', draw: drawMemoryIcon },
   { name: 'profile', draw: drawProfileIcon },
 ];
 

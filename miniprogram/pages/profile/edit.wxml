@@ -1,0 +1,99 @@
+<!-- pages/profile/edit.wxml -->
+<view class="edit-page">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- 头像 -->
+    <view class="form-card">
+      <view class="form-row avatar-row">
+        <text class="form-label">头像</text>
+        <view class="avatar-wrap">
+          <image
+            wx:if="{{avatarPreview}}"
+            class="avatar-preview"
+            src="{{avatarPreview}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="avatar-preview avatar-empty">
+            <text>{{avatarPlaceholder}}</text>
+          </view>
+          <view class="upload-status" wx:if="{{uploading}}">
+            <text>上传中...</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="avatar-actions">
+        <view class="action-btn" bindtap="handleChooseAlbum">
+          <text>从相册选择</text>
+        </view>
+        <button
+          class="action-btn wechat-btn"
+          open-type="chooseAvatar"
+          bindchooseavatar="handleChooseAvatar"
+        >
+          使用微信头像
+        </button>
+      </view>
+
+      <view class="upload-failed" wx:if="{{uploadFailed}}" bindtap="handleRetryUpload">
+        <text>头像上传失败，点击重试</text>
+      </view>
+    </view>
+
+    <!-- 昵称 -->
+    <view class="form-card">
+      <view class="form-row">
+        <text class="form-label">昵称</text>
+        <input
+          class="form-input"
+          type="text"
+          value="{{nickName}}"
+          maxlength="20"
+          placeholder="请输入昵称（1-20 字）"
+          placeholder-class="input-placeholder"
+          bindinput="handleNickInput"
+        />
+      </view>
+      <view class="form-hint">
+        <text class="hint-text">为空时显示为「我 / Ta」</text>
+        <text class="hint-count">{{nickName.length}}/20</text>
+      </view>
+    </view>
+
+    <!-- 纪念日 -->
+    <view class="form-card">
+      <picker
+        mode="date"
+        value="{{anniversary}}"
+        end="{{today}}"
+        bindchange="handleAnniversaryChange"
+      >
+        <view class="form-row">
+          <text class="form-label">纪念日</text>
+          <view class="date-value">
+            <text class="date-text {{anniversary ? '' : 'date-empty'}}">
+              {{anniversary || '未设置'}}
+            </text>
+            <text class="form-arrow">›</text>
+          </view>
+        </view>
+      </picker>
+      <view class="form-hint">
+        <text class="hint-text">默认取贴贴绑定日，可修改</text>
+        <text class="clear-btn" wx:if="{{anniversary}}" catchtap="handleClearAnniversary">清除</text>
+      </view>
+    </view>
+
+    <!-- 保存 -->
+    <view
+      class="save-btn {{saving || uploading ? 'btn-disabled' : ''}}"
+      bindtap="handleSave"
+    >
+      <text>{{saving ? '保存中...' : '保存'}}</text>
+    </view>
+  </block>
+</view>

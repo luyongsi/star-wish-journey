@@ -1,12 +1,22 @@
 <!-- pages/draw/index.wxml -->
 <view class="draw-page">
+  <!-- C1 今日愿望卡片 -->
+  <view class="today-section">
+    <today-wish
+      mode="card"
+      bind:selected="handleTodaySelected"
+      bind:hidden="handleTodayHidden"
+      bind:change="handleTodayChange"
+    />
+  </view>
+
   <!-- 标题 -->
   <view class="draw-header">
     <text class="draw-title">不知道做什么？</text>
     <text class="draw-subtitle">抽一个吧！</text>
   </view>
 
-  <!-- 动画区 -->
+  <!-- C2 动画区 -->
   <view class="draw-animation-area">
     <draw-animation
       wishes="{{pendingWishes}}"
@@ -16,9 +26,45 @@
     />
   </view>
 
-  <!-- 剩余数量 -->
+  <!-- C3 抽取条件 -->
+  <view class="condition-section">
+    <view class="condition-block">
+      <text class="condition-label">分类</text>
+      <scroll-view scroll-x class="pill-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="pill-scroll-inner">
+          <view
+            class="pill {{drawCondition.category === item.key ? 'pill-active' : ''}}"
+            wx:for="{{drawCategories}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="handleCategorySelect"
+          >
+            <text class="pill-text">{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="condition-block">
+      <text class="condition-label">避开近期</text>
+      <view class="pill-row">
+        <view
+          class="pill {{drawCondition.excludeDays === item.key ? 'pill-active' : ''}}"
+          wx:for="{{excludeDaysOptions}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="handleExcludeDaysSelect"
+        >
+          <text class="pill-text">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- C4 剩余数量 -->
   <view class="draw-count">
     <text>还有 {{pendingCount}} 个愿望待抽取</text>
+    <text class="draw-count-tip" wx:if="{{relaxedTip}}">{{relaxedTip}}</text>
   </view>
 
   <!-- 抽取按钮 -->
@@ -31,7 +77,7 @@
     </view>
   </view>
 
-  <!-- 空池提示 -->
+  <!-- C6 空池提示 -->
   <view class="draw-empty" wx:if="{{pendingCount === 0 && !loading}}">
     <empty-state
       icon="📭"
@@ -39,14 +85,13 @@
       subText="快去愿望池添加更多心愿吧"
     />
   </view>
-
   <!-- 加载中 -->
   <view class="loading" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>
 </view>
 
-<!-- 抽中弹窗 -->
+<!-- C5 抽中弹窗 -->
 <view class="overlay" wx:if="{{showResult}}" bindtap="handleCloseResult">
   <view class="result-modal" catchtap="handleStopPropagation">
     <view class="result-header">
@@ -63,6 +108,32 @@
       </view>
       <view class="btn-primary" bindtap="handleStart">
         <text>✅ 去做</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- C5 自选计划日期 -->
+<view class="overlay" wx:if="{{showDatePicker}}" bindtap="handleCancelDatePicker">
+  <view class="date-modal" catchtap="handleStopPropagation">
+    <view class="date-title">安排在哪天？</view>
+    <picker
+      mode="date"
+      value="{{customDate}}"
+      start="{{minDate}}"
+      bindchange="handleCustomDateChange"
+    >
+      <view class="date-picker-row">
+        <text class="date-value">{{customDate || '选择日期'}}</text>
+        <text class="date-arrow">›</text>
+      </view>
+    </picker>
+    <view class="date-actions">
+      <view class="btn-secondary" bindtap="handleCancelDatePicker">
+        <text>取消</text>
+      </view>
+      <view class="btn-primary" bindtap="handleConfirmDatePicker">
+        <text>确认</text>
       </view>
     </view>
   </view>

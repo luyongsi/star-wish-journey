@@ -1,6 +1,11 @@
 // cloudfunctions/checkin/index.js — 打卡云函数
-// switch(action): create / list / detail / delete
+// switch(action): create / complete / append / list / detail / delete
 // 公共鉴权: _checkCouple()
+//
+// v1.1 变更（PRD §6.2 / FUN-2 / FUN-8）：
+// - 备注、媒体、位置全部选填，可「先跳过，直接完成」
+// - 一个愿望可挂多条打卡记录（追加模式）
+// - 记录可带位置，位置用于足迹地图
 
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -13,6 +18,7 @@ const wishesCollection = db.collection('wishes');
 const checkinsCollection = db.collection('checkins');
 
 const MAX_NOTE_LENGTH = 500;
+const MAX_MEDIA_COUNT = 9;
 
 /**
  * 校验 openid 属于 active couple
@@ -44,6 +50,60 @@ async function _checkCouple(openid) {
 }
 
 /**
+ * 规范化位置对象
+ * @param {Object|null} location - { name, address, latitude, longitude, city }
+ * @returns {Object|null}
+ */
+function _normalizeLocation(location) {
+  if (!location || !location.name) return null;
+  return {
+    name: String(location.name),
+    address: location.address ? String(location.address) : '',
+    latitude: Number(location.latitude) || 0,
+    longitude: Number(location.longitude) || 0,
+    city: location.city ? String(location.city) : '',
+  };
+}
+
+/**
+ * 规范化媒体列表
+ * @param {Array} mediaList
+ * @returns {{ ok: boolean, message?: string, list: Array }}
+ */
+function _normalizeMedia(mediaList) {
+  if (mediaList === undefined || mediaList === null) {
+    return { ok: true, list: [] };
+  }
+  if (!Array.isArray(mediaList)) {
+    return { ok: false, message: '媒体列表格式不正确', list: [] };
+  }
+  if (mediaList.length > MAX_MEDIA_COUNT) {
+    return { ok: false, message: `媒体最多 ${MAX_MEDIA_COUNT} 个`, list: [] };
+  }
+  const list = mediaList
+    .filter((m) => m && m.fileId)
+    .map((m) => ({
+      fileId: String(m.fileId),
+      type: m.type === 'video' ? 'video' : 'image',
+      thumbUrl: m.thumbUrl || '',
+    }));
+  return { ok: true, list };
+}
+
+/**
+ * 校验打卡内容：首次完成允许全空；追加模式要求至少一项
+ */
+function _validateContent(note, media, location, requireOne) {
+  if (note && note.length > MAX_NOTE_LENGTH) {
+    return '打卡备注不能超过500字';
+  }
+  if (requireOne && !note && media.length === 0 && !location) {
+    return '追加记录请至少填写一项内容';
+  }
+  return null;
+}
+
+/**
  * 打卡云函数主入口
  */
 exports.main = async (event, context) => {
@@ -54,11 +114,17 @@ exports.main = async (event, context) => {
   try {
     switch (action) {
       case 'create':
-        return await _handleCreate(openid, event);
+        return await _handleCreate(openid, event, false);
+      case 'append':
+        return await _handleCreate(openid, event, true);
+      case 'complete':
+        return await _handleComplete(openid, event);
       case 'list':
         return await _handleList(openid);
       case 'detail':
         return await _handleDetail(openid, event);
+      case 'listByWish':
+        return await _handleListByWish(openid, event);
       case 'delete':
         return await _handleDelete(openid, event);
       default:
@@ -75,26 +141,29 @@ exports.main = async (event, context) => {
 };
 
 /**
- * 创建打卡：校验 wish.status=='ongoing'，事务插入 checkin + 更新 wish 为 completed
+ * 创建打卡记录
+ * - append=false：首次完成，愿望必须为 ongoing，成功后置为 completed
+ * - append=true ：追加记录，愿望必须为 completed，状态保持不变，内容至少一项
  */
-async function _handleCreate(openid, event) {
+async function _handleCreate(openid, event, append) {
   const { couple, members } = await _checkCouple(openid);
 
   if (!event.wishId) {
     return { code: 1004, data: null, message: '缺少愿望ID' };
   }
 
-  // 校验备注
-  if (event.note && event.note.length > MAX_NOTE_LENGTH) {
-    return { code: 1004, data: null, message: '打卡备注不能超过500字' };
+  const note = (event.note || '').trim();
+  const media = _normalizeMedia(event.mediaList);
+  if (!media.ok) {
+    return { code: 1004, data: null, message: media.message };
+  }
+  const location = _normalizeLocation(event.location);
+
+  const contentError = _validateContent(note, media.list, location, append);
+  if (contentError) {
+    return { code: 1004, data: null, message: contentError };
   }
 
-  // 校验媒体
-  if (!event.mediaList || !Array.isArray(event.mediaList) || event.mediaList.length === 0) {
-    return { code: 1004, data: null, message: '请至少添加一张图片或视频' };
-  }
-
-  // 查询愿望
   const wishQuery = await wishesCollection.doc(event.wishId).get();
   if (!wishQuery.data) {
     return { code: 1004, data: null, message: '愿望不存在' };
@@ -103,85 +172,221 @@ async function _handleCreate(openid, event) {
   if (wish.coupleId !== couple._id) {
     return { code: 1003, data: null, message: '无权操作此愿望' };
   }
-  if (wish.status !== 'ongoing') {
+
+  if (append) {
+    if (wish.status !== 'completed') {
+      return { code: 1002, data: null, message: '只有已完成的愿望可以追加记录' };
+    }
+  } else if (wish.status !== 'ongoing') {
     return { code: 1002, data: null, message: '该愿望当前状态无法打卡' };
   }
 
   const now = db.serverDate();
 
-  // 事务：插入 checkin + 更新 wish 为 completed
-  const transactionResult = await db.runTransaction(async (transaction) => {
-    // 插入打卡记录
-    const newCheckIn = {
-      wishId: event.wishId,
-      coupleId: couple._id,
-      members,
-      checkInBy: openid,
-      note: event.note || '',
-      mediaList: event.mediaList,
-      location: event.location || null,
-      createdAt: now,
-    };
-    const addResult = await transaction.collection('checkins').add({ data: newCheckIn });
+  const newCheckIn = {
+    wishId: event.wishId,
+    coupleId: couple._id,
+    members,
+    checkInBy: openid,
+    note,
+    mediaList: media.list,
+    location,
+    isAppend: !!append,
+    createdAt: now,
+  };
 
-    // 更新愿望状态为已完成
+  if (append) {
+    // 追加：只新增记录，并递增愿望上的记录计数
+    const addResult = await checkinsCollection.add({ data: newCheckIn });
+    await wishesCollection.doc(event.wishId).update({
+      data: {
+        checkInCount: _.inc(1),
+        lastCheckInAt: now,
+        updatedAt: now,
+      },
+    });
+    const inserted = await checkinsCollection.doc(addResult._id).get();
+    return {
+      code: 0,
+      data: { checkIn: inserted.data, wish },
+      message: '记录已追加',
+    };
+  }
+
+  // 首次完成：事务内写记录 + 置为已完成
+  const transactionResult = await db.runTransaction(async (transaction) => {
+    const addResult = await transaction.collection('checkins').add({ data: newCheckIn });
     await transaction.collection('wishes').doc(event.wishId).update({
       data: {
         status: 'completed',
         completedAt: now,
+        checkInCount: _.inc(1),
+        lastCheckInAt: now,
         updatedAt: now,
       },
     });
-
     return { checkInId: addResult._id };
   });
 
-  // 获取插入的打卡记录
   const checkInQuery = await checkinsCollection.doc(transactionResult.checkInId).get();
-
   return {
     code: 0,
-    data: { checkIn: checkInQuery.data, wish: { ...wish, status: 'completed', completedAt: new Date() } },
+    data: {
+      checkIn: checkInQuery.data,
+      wish: { ...wish, status: 'completed', completedAt: new Date() },
+    },
     message: '打卡成功',
   };
 }
 
 /**
- * 查询打卡列表：返回 { ongoing: [], completed: [] }
+ * 跳过内容直接完成：不产生打卡记录
+ */
+async function _handleComplete(openid, event) {
+  const { couple } = await _checkCouple(openid);
+
+  if (!event.wishId) {
+    return { code: 1004, data: null, message: '缺少愿望ID' };
+  }
+
+  const wishQuery = await wishesCollection.doc(event.wishId).get();
+  if (!wishQuery.data) {
+    return { code: 1004, data: null, message: '愿望不存在' };
+  }
+  const wish = wishQuery.data;
+  if (wish.coupleId !== couple._id) {
+    return { code: 1003, data: null, message: '无权操作此愿望' };
+  }
+  if (wish.status === 'completed') {
+    // 幂等：重复点击不报错
+    return { code: 0, data: { wish }, message: '该愿望已完成' };
+  }
+  if (wish.status !== 'ongoing') {
+    return { code: 1002, data: null, message: '该愿望当前状态无法完成' };
+  }
+
+  const now = db.serverDate();
+  await wishesCollection.doc(event.wishId).update({
+    data: {
+      status: 'completed',
+      completedAt: now,
+      checkInCount: wish.checkInCount || 0,
+      updatedAt: now,
+    },
+  });
+
+  return {
+    code: 0,
+    data: { wish: { ...wish, status: 'completed', completedAt: new Date() } },
+    message: '已完成',
+  };
+}
+
+/**
+ * 查询打卡列表：今天要做 / 待打卡 / 已完成
+ * 返回 { today, ongoing, completed, stats }
  */
 async function _handleList(openid) {
   const { couple } = await _checkCouple(openid);
 
-  // 查询进行中的愿望
   const ongoingQuery = await wishesCollection
     .where({ coupleId: couple._id, status: 'ongoing' })
-    .orderBy('drawnAt', 'desc')
     .get();
 
-  // 查询已完成的打卡记录
-  const completedQuery = await checkinsCollection
-    .where({ coupleId: couple._id })
-    .orderBy('createdAt', 'desc')
+  const completedQuery = await wishesCollection
+    .where({ coupleId: couple._id, status: 'completed' })
+    .orderBy('completedAt', 'desc')
     .get();
 
-  // 为已完成的打卡关联愿望标题
-  const completed = [];
-  for (const checkIn of completedQuery.data) {
-    let wishTitle = '';
-    let wishCategory = 'other';
-    if (checkIn.wishId) {
-      const wishQuery = await wishesCollection.doc(checkIn.wishId).get();
-      if (wishQuery.data) {
-        wishTitle = wishQuery.data.title;
-        wishCategory = wishQuery.data.category;
+  // 已完成愿望的打卡记录（用于显示首图、记录数与图片数）
+  const completedIds = completedQuery.data.map((w) => w._id);
+  let checkins = [];
+  if (completedIds.length > 0) {
+    const checkinQuery = await checkinsCollection
+      .where({ coupleId: couple._id, wishId: _.in(completedIds) })
+      .orderBy('createdAt', 'asc')
+      .get();
+    checkins = checkinQuery.data;
+  }
+
+  const recordMap = {};
+  checkins.forEach((c) => {
+    if (!recordMap[c.wishId]) {
+      recordMap[c.wishId] = { count: 0, mediaCount: 0, firstImage: null };
+    }
+    const entry = recordMap[c.wishId];
+    entry.count += 1;
+    const media = c.mediaList || [];
+    entry.mediaCount += media.length;
+    if (!entry.firstImage) {
+      const img = media.find((m) => m.type !== 'video');
+      if (img) entry.firstImage = img;
+    }
+  });
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const today = [];
+  const upcoming = [];
+  ongoingQuery.data.forEach((w) => {
+    const planned = w.plannedDate ? new Date(w.plannedDate) : null;
+    const item = { ...w, wishTitle: w.title, wishCategory: w.category, overdueDays: 0 };
+    if (planned) {
+      const plannedStart = new Date(planned);
+      plannedStart.setHours(0, 0, 0, 0);
+      if (plannedStart.getTime() <= startOfToday.getTime()) {
+        item.overdueDays = Math.floor(
+          (startOfToday.getTime() - plannedStart.getTime()) / (24 * 60 * 60 * 1000)
+        );
+        today.push(item);
+        return;
       }
     }
-    completed.push({ ...checkIn, wishTitle, wishCategory });
-  }
+    upcoming.push(item);
+  });
+
+  today.sort((a, b) => new Date(a.plannedDate) - new Date(b.plannedDate));
+
+  const completed = completedQuery.data.map((w) => {
+    const record = recordMap[w._id] || { count: 0, mediaCount: 0, firstImage: null };
+    return {
+      ...w,
+      wishTitle: w.title,
+      wishCategory: w.category,
+      recordCount: record.count,
+      mediaCount: record.mediaCount,
+      coverMedia: record.firstImage,
+    };
+  });
+
+  // 最近记录（供红点与动态条使用，按时间倒序，最多 20 条）
+  const recentRecords = checkins
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 20)
+    .map((c) => ({
+      _id: c._id,
+      wishId: c.wishId,
+      checkInBy: c.checkInBy,
+      note: c.note || '',
+      mediaList: c.mediaList || [],
+      createdAt: c.createdAt,
+    }));
 
   return {
     code: 0,
-    data: { ongoing: ongoingQuery.data, completed },
+    data: {
+      today,
+      ongoing: upcoming,
+      completed,
+      recentRecords,
+      stats: {
+        todayCount: today.length,
+        ongoingCount: upcoming.length,
+        completedCount: completed.length,
+      },
+    },
     message: 'ok',
   };
 }
@@ -204,7 +409,6 @@ async function _handleDetail(openid, event) {
     return { code: 1003, data: null, message: '无权查看此记录' };
   }
 
-  // 获取关联愿望
   let wish = null;
   if (checkInQuery.data.wishId) {
     const wishQuery = await wishesCollection.doc(checkInQuery.data.wishId).get();
@@ -239,19 +443,22 @@ async function _handleDelete(openid, event) {
   }
 
   const checkIn = checkInQuery.data;
-
-  // 删除打卡记录
   await checkinsCollection.doc(event.checkInId).remove();
 
-  // 可选恢复 wish 状态为 ongoing
-  if (event.restoreWish && checkIn.wishId) {
-    await wishesCollection.doc(checkIn.wishId).update({
-      data: {
-        status: 'ongoing',
-        completedAt: null,
-        updatedAt: db.serverDate(),
-      },
-    });
+  if (checkIn.wishId) {
+    const wishQuery = await wishesCollection.doc(checkIn.wishId).get();
+    if (wishQuery.data) {
+      const updateData = { updatedAt: db.serverDate() };
+      const remainCount = Math.max(0, (wishQuery.data.checkInCount || 1) - 1);
+      updateData.checkInCount = remainCount;
+      // 恢复愿望状态为 ongoing
+      if (event.restoreWish) {
+        updateData.status = 'ongoing';
+        updateData.completedAt = null;
+      }
+      // 已无任何记录且未显式要求恢复时，仍保持完成态（跳过完成的愿望本就没有记录）
+      await wishesCollection.doc(checkIn.wishId).update({ data: updateData });
+    }
   }
 
   return {
@@ -260,5 +467,37 @@ async function _handleDelete(openid, event) {
     message: '已删除打卡记录',
   };
 }
+
+/**
+ * 查询某个愿望下的全部打卡记录（按时间正序）
+ * 入参：{ wishId }
+ */
+async function _handleListByWish(openid, event) {
+  const { couple } = await _checkCouple(openid);
+
+  if (!event.wishId) {
+    return { code: 1004, data: null, message: '缺少愿望ID' };
+  }
+
+  const wishQuery = await wishesCollection.doc(event.wishId).get();
+  if (!wishQuery.data) {
+    return { code: 1004, data: null, message: '愿望不存在' };
+  }
+  if (wishQuery.data.coupleId !== couple._id) {
+    return { code: 1003, data: null, message: '无权查看此愿望' };
+  }
+
+  const recordsQuery = await checkinsCollection
+    .where({ coupleId: couple._id, wishId: event.wishId })
+    .orderBy('createdAt', 'asc')
+    .get();
+
+  return {
+    code: 0,
+    data: { records: recordsQuery.data, wish: wishQuery.data },
+    message: 'ok',
+  };
+}
+
 
 module.exports = exports;
